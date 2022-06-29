@@ -1,0 +1,136 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  name: otlp_grpc
+  displayName: OpenTelemetry (OTLP)
+  icon: /icons/destinations/otlp.svg
+spec:
+  parameters:
+    - name: protocol
+      label: Protocol
+      description: The OTLP protocol to use when sending OTLP telemetry.
+      type: enum
+      default: grpc
+      validValues:
+        - grpc
+        - http
+
+    - name: hostname
+      label: Hostname
+      description: Hostname or IP address to which the exporter is going to send OTLP data.
+      type: string
+      default: ""
+      required: true
+
+    - name: grpc_port
+      label: Port
+      description: TCP port to which the exporter is going to send OTLP data.
+      type: int
+      default: 4317
+      relevantIf:
+        - name: protocol
+          operator: equals
+          value: "grpc"
+
+    - name: http_port
+      label: Port
+      description: TCP port to which the exporter is going to send OTLP data.
+      type: int
+      default: 4318
+      relevantIf:
+        - name: protocol
+          operator: equals
+          value: "http"
+
+    - name: enable_tls
+      label: Enable TLS
+      description: Whether or not to use TLS.
+      type: bool
+      default: false
+      advancedConfig: true
+
+    - name: insecure_skip_verify
+      label: Skip TLS Certificate Verification
+      description: Enable to skip TLS certificate verification.
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: ca_file
+      label: TLS Certificate Authority File
+      description: Certificate authority used to validate TLS certificates.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: cert_file
+      label: Mutual TLS Client Certificate File
+      description: A TLS certificate used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: key_file
+      label: Mutual TLS Client Private Key File
+      description: A TLS private key used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+  logs+metrics+traces:
+    exporters: |
+      {{ if eq .protocol "grpc" }}
+      - otlp:
+          endpoint: {{ .hostname }}:{{ .grpc_port }}
+          tls:
+            {{ if .enable_tls }}
+            insecure: false
+            insecure_skip_verify: {{ .insecure_skip_verify }}
+            ca_file: "{{ .ca_file }}"
+            cert_file: "{{ .cert_file }}"
+            key_file: "{{ .key_file }}"
+            {{ else }}
+            insecure: true
+            {{ end }}
+      {{ end }}
+
+      {{ if eq .protocol "http" }}
+      - otlphttp:
+          {{ if .enable_tls }}
+          endpoint: http://{{ .hostname }}:{{ .http_port }}
+          {{ else }}
+          endpoint: http://{{ .hostname }}:{{ .http_port }}
+          {{ end }}
+          tls:
+            {{ if .enable_tls }}
+            insecure: false
+            insecure_skip_verify: {{ .insecure_skip_verify }}
+            ca_file: "{{ .ca_file }}"
+            cert_file: "{{ .cert_file }}"
+            key_file: "{{ .key_file }}"
+            {{ else }}
+            insecure: true
+            {{ end }}
+      {{ end }}
+
+    processors: |
+      - batch:

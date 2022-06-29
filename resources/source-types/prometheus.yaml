@@ -1,0 +1,46 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: prometheus
+  displayName: Prometheus
+  icon: /icons/sources/prometheus.svg
+  description: Prometheus metrics scraper
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    - name: job_name
+      label: Job Name
+      description: The name of the scraper job. Will be set as service.name resource label.
+      type: string
+      default: ""
+      required: true
+
+    - name: static_targets
+      label: Static Targets
+      description: List of endpoints to scrape.
+      type: strings
+      default: []
+      required: true
+
+    - name: collection_interval
+      label: Collection Interval
+      description: How often (seconds) to scrape for metrics.
+      type: int
+      default: 60
+
+  metrics:
+    receivers: |
+      - prometheus:
+          config:
+            scrape_configs:
+              - job_name: '{{ .job_name }}'
+                scrape_interval: {{ .collection_interval }}s
+                static_configs:
+                  - targets:
+                      {{ range $target := .static_targets }}
+                      - {{ $target }}
+                      {{end}}

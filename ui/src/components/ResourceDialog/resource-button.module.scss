@@ -1,0 +1,27 @@
+@use '../../styles/colors';
+
+.pointer {
+  cursor: pointer;
+}
+
+.icon {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 30px;
+
+  width: 40px;
+  height: 40px;
+
+  transition: background-color 0.2s ease;
+
+  border-radius: 15px;
+  background-color: colors.$white;
+}
+
+.hovered {
+  background: linear-gradient(
+    90deg,
+    colors.$summer-sky 0%,
+    colors.$medium-aquamarine 100%
+  );
+}

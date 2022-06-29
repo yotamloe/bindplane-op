@@ -1,0 +1,36 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Configuration
+metadata:
+  name: bad-parameter-values
+spec:
+  contentType: text/yaml
+  sources:
+  # name is optional and this will become MacOS_1 if none is specified or MacOS_name if a name is specified
+  - type: MacOS
+    parameters:
+      # using default parameter values for anything missing
+      - name: enable_system_log
+        value: "falsy"
+  - type: MacOS
+    parameters:
+      # using default parameter values for anything missing
+      - name: enable_system_log
+        value: true
+      - name: install_log_path
+        value:
+          - array
+          - but
+          - not
+          - supposed
+          - to
+          - be
+      - name: start_at
+        value: middle
+      - name: unknown
+        value: doesn't matter
+  destinations:
+  # name indicates an existing resource with the specified name, destinations could also be inline without a name
+  - name: cabin-production-logs
+  selector:
+    matchLabels:
+      "configuration": "bad-labels"

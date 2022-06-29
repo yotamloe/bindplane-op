@@ -1,0 +1,37 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  name: prometheus
+  displayName: Prometheus
+  icon: /icons/destinations/prometheus.svg
+spec:
+  parameters:
+    - name: listen_port
+      label: Listen Port
+      description: The TCP port the Prometheus exporter should listen on, to be scraped by a Prometheus server
+      type: int
+      default: 9000
+
+    - name: listen_address
+      label: Listen Address
+      description: The IP address the Prometheus exporter should listen on, to be scraped by a Prometheus server
+      type: string
+      default: "127.0.0.1"
+
+    - name: namespace
+      label: Namespace
+      description: When set, exports metrics under the provided value
+      type: string
+      advancedConfig: true
+      required: false
+      default: ""
+
+  metrics:
+    exporters: |
+      - prometheus:
+          endpoint: "{{ .listen_address }}:{{ .listen_port }}"
+          resource_to_telemetry_conversion:
+            enabled: true
+          namespace: {{ .namespace }}
+    processors: |
+      - batch:

@@ -1,0 +1,7 @@
+host: localhost
+port: '3001'
+username: admin
+password: admin
+server:
+  secretKey: e7e824d2-ca5c-466e-a51e-36f5ed1d9a49
+

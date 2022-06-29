@@ -1,0 +1,91 @@
+# Base configuration for BindPlane client and server. All commands will
+# use these values, including "bindplane serve".
+#
+
+# The IP address the BindPlane server should listen on.
+# Defaults to "127.0.0.1".
+# Set to 0.0.0.0 to listen on all IP addresses.
+#
+#host: "0.0.0.0"
+host: "127.0.0.1"
+
+# The TCP port BindPlane should bind to. All communication
+# to the BindPlane server (http, graphql, web socket) will
+# use this port. Defaults to "3001".
+#
+port: "3001"
+
+# Basic auth username. Defaults to "admin".
+# Uncomment and set to something secure.
+#
+#username:
+#password:
+
+# The log file to use for all BindPlane logging. This file is
+# rotated and compressed automatically.
+#
+logFilePath: /var/log/bindplane/bindplane.log
+
+# The directory to use for persistent storage.
+#
+bindplaneHome: /var/lib/bindplane
+
+
+# TLS configuration for TLS and Mutual TLS.
+#
+# Enable client server TLS:
+#   set "tlsCert" and "tlsKey" on the server
+#   set "tlsCa" on the client or import the certificate authority into the operating systems certificate store.
+#   all agent's should trust the certificate authority (see your agents documentation).
+#
+# Enable client server mutual TLS:
+#  set "tlsCert", "tlsKey", "tlsCa" on the server and all clients.
+#  all agent's should be configured for mutual TLS (see your agents documentation).
+#  
+#
+# The path to the x509 PEM encoded certificate file.
+#tlsCert: /etc/bindplane/tls/bindplane.crt
+#
+# The path to the x509 PEM encoded private key file.
+#tlsKey: /etc/bindplane/tls/bindplane.key
+#
+# The path(s) to the x509 PEM encoded certificate authority files.
+# The server can be configured with multuple certificate authorities
+# when using mTLS, allowing the server to trust agents and clients with
+# different authorities.
+#
+#tlsCa:
+#- /etc/bindplane/tls/bindplane-ca.crt
+
+
+# Server configuration used by "bindplane serve"
+#
+server:
+  # The full http URL used for communication between client and server.
+  # Defaults to "http://127.0.0.1:3001".
+  # Set to the IP address of the server, this should never be "0.0.0.0".
+  # Use "https" when TLS is enabled.
+  #
+  #
+  serverURL: http://127.0.0.1:3001
+
+  # The full websocket URL used for communication between agent and server.
+  # Defaults to "ws://127.0.0.1:3001".
+  # Set to the IP address of the server, this should never be "0.0.0.0".
+  # Use "wss" when TLS is enabled.
+  #
+  remoteURL: ws://127.0.0.1:3001
+
+  # The path to store the BindPlane database when using the boltstore storage
+  # backend.
+  #
+  storageFilePath: /var/lib/bindplane/storage/bindplane.db
+
+  # The path to store the BindPlane agent download metadata and cache.
+  #
+  downloadsFolderPath: /var/lib/bindplane/downloads
+
+  # The secret key to be used for authentication between server and agents.
+  # This value should be a new random UUID v4.
+  #
+  #secretKey:

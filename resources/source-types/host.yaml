@@ -1,0 +1,180 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: host
+  displayName: Host
+  icon: /icons/sources/host.svg
+  description: Host metrics
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    - name: collection_interval
+      label: Collection Interval
+      description: How often (seconds) to scrape for metrics.
+      type: int
+      default: 60
+
+    - name: enable_load
+      label: Load Metrics
+      description: Enable to collect load metrics. Compatible with all platforms.
+      type: bool
+      default: true
+
+    - name: enable_filesystem
+      label: Filesystem Metrics
+      description: Enable to collect filesystem metrics. Compatible with all platforms.
+      type: bool
+      default: true
+
+    - name: enable_memory
+      label: Memory Metrics
+      description: Enable to collect memory metrics. Compatible with all platforms.
+      type: bool
+      default: true
+
+    - name: enable_network
+      label: Network Metrics
+      description: Enable to collect network metrics. Compatible with all platforms.
+      type: bool
+      default: true
+
+    - name: enable_paging
+      label: Paging Metrics
+      description: Enable to collect paging metrics. Compatible with all platforms.
+      type: bool
+      default: true
+
+    - name: enable_cpu
+      label: CPU Metrics
+      description: Enable to collect CPU metrics. Compatible with Linux and Windows.
+      type: bool
+      default: false
+
+    - name: enable_disk
+      label: Disk Metrics
+      description: Enable to collect disk metrics. Compatible with Linux and Windows.
+      type: bool
+      default: false
+
+    - name: enable_processes
+      label: Processes Metrics
+      description: Enable to collect process count metrics. Compatible with Linux only.
+      type: bool
+      default: false
+
+    # Process metrics w/ filtering
+
+    - name: enable_process
+      label: Process Metrics
+      description: Enable to collect process metrics. Compatible with Linux and Windows. The collector must be running as root (Linux) and Administrator (Windows).
+      type: bool
+      default: true
+
+    - name: enable_process_filter
+      label: Enable Process Filtering
+      description: Enable to configure filtering for process metrics.
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_process
+          operator: equals
+          value: true
+
+    - name: process_include
+      label: Process Include Filter
+      description: List of processes to include for metric collection. Defaults to all processes.
+      type: strings
+      default: []
+      relevantIf:
+        - name: enable_process_filter
+          operator: equals
+          value: true
+
+    - name: process_exclude
+      label: Process Exclude Filter
+      description: List of processes to exclude from metric collection.
+      type: strings
+      default: []
+      relevantIf:
+        - name: enable_process_filter
+          operator: equals
+          value: true
+
+    - name: process_filter_match_strategy
+      label: Process Filter Match Type
+      description: Strategy for matching process names.
+      type: enum
+      default: regexp
+      validValues:
+        - regexp
+        - strict
+      relevantIf:
+        - name: enable_process_filter
+          operator: equals
+          value: true
+
+  metrics:
+    receivers: |
+      - hostmetrics:
+          collection_interval: {{ .collection_interval }}s
+          scrapers:
+            {{ if .enable_load }}
+            load:
+            {{ end }}
+
+            {{ if .enable_filesystem }}
+            filesystem:
+            {{ end }}
+
+            {{ if .enable_memory }}
+            memory:
+            {{ end }}
+
+            {{ if .enable_network }}
+            network:
+            {{ end }}
+
+            {{ if .enable_paging }}
+            paging:
+            {{ end }}
+
+            {{ if .enable_disk }}
+            disk:
+            {{ end }}
+
+            {{ if .enable_cpu }}
+            cpu:
+            {{ end }}
+
+            {{ if .enable_processes }}
+            processes:
+            {{ end }}
+
+            {{ if .enable_process }}
+            process:
+              {{ if .enable_process_filter }}
+              include:
+                names:
+                {{ range $p := .process_include }}
+                - '{{ $p }}'
+                {{ end }}
+                match_type: {{ .process_filter_match_strategy }}
+              exclude:
+                names:
+                {{ range $p := .process_exclude }}
+                - '{{ $p }}'
+                {{ end }}
+                match_type: {{ .process_filter_match_strategy }}
+              {{ end }}
+              mute_process_name_error: true
+            {{ end }}
+
+    processors: |
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]

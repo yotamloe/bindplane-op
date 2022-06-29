@@ -1,0 +1,12 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  name: otlp
+spec:
+  logs+metrics+traces:
+    processors: |
+      - batch:
+
+    exporters: |
+      - otlp:
+          endpoint: otelcol:4317

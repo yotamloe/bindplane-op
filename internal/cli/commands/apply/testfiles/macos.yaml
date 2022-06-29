@@ -1,0 +1,18 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Receiver
+metadata:
+  name: macOS
+spec:
+  plugin:
+    name: macos
+  parameters:
+  - name: name
+    value: macOS
+  - name: version
+    value: "0.0.2"
+  - name: start_at
+    value: end
+  - name: enable_system_log
+    value: true
+  - name: enable_install_log
+    value: true

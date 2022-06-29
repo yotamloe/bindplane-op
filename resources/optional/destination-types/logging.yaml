@@ -1,0 +1,36 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  id: 5c41d576-916b-4cd4-9fe0-3b55b5ae7019
+  name: logging
+  displayName: Logging
+  icon: /icons/destinations/logging.svg
+spec:
+  version: ""
+  parameters:
+    - name: log_level
+      label: Log Level
+      description: The log level
+      required: false
+      type: enum
+      validValues:
+        - debug
+        - info
+        - warn
+        - error
+      default: info
+      hidden: false
+      advancedConfig: false
+  supportedPlatforms: []
+  logs:
+    exporters: |
+      - logging:
+          logLevel: {{ .log_level }}
+  metrics:
+    exporters: |
+      - logging:
+          logLevel: {{ .log_level }}
+  traces:
+    exporters: |
+      - logging:
+          logLevel: {{ .log_level }}

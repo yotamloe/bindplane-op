@@ -1,0 +1,84 @@
+# Usage
+# - Set `PROJECT` in your environment, to the project_id you wish to deploy test instances to.
+# - Run `make kitchen-rep`
+# - Run `make kitchen`
+# - Run `make kitchen-clean
+---
+driver:
+  name: gce
+  metadata:
+    # adds username prefix to the ssh key, required by
+    # gce metadata.
+    ssh-keys: <%= ENV['USER'] + ':' + IO.binread("#{Dir.home}/.ssh/id_rsa.pub").rstrip! %>
+  project: <%= ENV['PROJECT'] %>
+  region: us-east1
+  machine_type: e2-small
+  preemptible: true
+  disks:
+    disk0:
+      boot: true
+      autodelete_disk: true
+      disk_size: 50
+      disk_type: pd-ssd
+
+transport:
+  username: <%= ENV['USER'] %>
+  ssh_key: ~/.ssh/id_rsa
+
+provisioner:
+  name: shell
+  script:    'test/inspec/package/provision.sh'
+  root_path: '/tmp'
+  # copies repo to instance
+  data_path: "dist/kitchen/"
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: centos-7
+    driver:
+      image_project: centos-cloud
+      image_family: centos-7
+  - name: rocky-8 # centos 8
+    driver:
+      image_project: rocky-linux-cloud
+      image_family: rocky-linux-8
+  - name: rhel-7
+    driver:
+      image_project: rhel-cloud
+      image_family: rhel-7
+  - name: rhel-8
+    driver: 
+      image_project: rhel-cloud
+      image_family: rhel-8
+  - name: ubuntu-18
+    driver:
+      image_project: ubuntu-os-cloud
+      image_family: ubuntu-1804-lts
+  - name: ubuntu-20
+    driver:
+      image_project: ubuntu-os-cloud
+      image_family: ubuntu-2004-lts
+  - name: debian-10
+    driver:
+      image_project: debian-cloud
+      image_family: debian-10
+  - name: debian-11
+    driver:
+      image_project: debian-cloud
+      image_family: debian-11
+  - name: sles-12
+    driver:
+      image_project: suse-cloud
+      image_family: sles-12
+  - name: sles-15
+    driver:
+      image_project: suse-cloud
+      image_family: sles-15
+
+suites:
+  - name: default
+    verifier:
+      inspec_tests:
+        - test/inspec/package/

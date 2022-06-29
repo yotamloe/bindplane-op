@@ -1,0 +1,15 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Configuration
+metadata:
+  name: otlp
+  labels:
+    platform: macos
+    app: cabin
+spec:
+  sources:
+  - type: otlp
+  destinations:
+  - type: otlp
+  selector:
+    matchLabels:
+      "configuration": otlp

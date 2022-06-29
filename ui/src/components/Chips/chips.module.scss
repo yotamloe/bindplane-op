@@ -1,0 +1,11 @@
+@use "../../styles/colors";
+
+.hovered {
+  color: colors.$white;
+  border: 1px solid colors.$white;
+}
+
+.grey {
+  color: colors.$revolver;
+  border: 1px solid colors.$revolver;
+}

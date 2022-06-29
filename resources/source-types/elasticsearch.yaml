@@ -1,0 +1,282 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: elasticsearch
+  displayName: Elasticsearch
+  icon: /icons/sources/elasticsearch.svg
+  description: Elasticsearch metrics and logs
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    # Metrics
+    #
+    - name: enable_metrics
+      label: Enable Metrics
+      description: Enable to collect metrics.
+      type: bool
+      default: true
+
+    - name: hostname
+      label: Hostname
+      description: The hostname or IP address of the Elasticsearch API.
+      type: string
+      default: "localhost"
+      required: true
+
+    - name: port
+      label: Port
+      description: The TCP port of the Elasticsearch API.
+      type: int
+      default: 9200
+
+    - name: username
+      label: Username
+      description: Username used to authenticate.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+
+    - name: password
+      label: Password
+      description: Password used to authenticate.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+
+    - name: collection_interval
+      label: Collection Interval
+      description: How often (seconds) to scrape for metrics.
+      type: int
+      default: 60
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: nodes
+      label: Collection Scope
+      description: |
+        Filters that define which nodes are scraped for node-level metrics.
+        Should be set to '_node' if collector is installed on all nodes.
+        '_all' if single collector is scraping the entire collector.
+        https://www.elastic.co/guide/en/elasticsearch/reference/7.9/cluster.html#cluster-nodes.
+      type: strings
+      # Default to _node for the following reasons
+      # 1) Default endpoint is localhost without auth.
+      # 2) Logs are enabled by default, implying the collector is installed on each node in the cluster.
+      default:
+        - _node
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: skip_cluster_metrics
+      label: Disable Cluster Metrics
+      description: Enable to disable the collection of cluster level metrics.
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: enable_tls
+      label: Enable TLS
+      description: Whether or not to use TLS when connecting to Elasticsearch.
+      type: bool
+      default: true
+      advancedConfig: true
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+
+    - name: strict_tls_verify
+      label: Strict TLS Certificate Verification
+      description: Enable to require TLS certificate verification.
+      type: bool
+      default: false
+      advancedConfig: true
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+
+    - name: ca_file
+      label: TLS Certificate Authority File
+      description: Certificate authority used to validate TLS certificates. Not required if the collector's operating system already trusts the certificate authority.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: strict_tls_verify
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: mutual_tls
+      label: Mutual TLS Authentication
+      description: Enable to require TLS mutual authentication.
+      type: bool
+      default: false
+      relevantIf:
+        - name: strict_tls_verify
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: cert_file
+      label: Mutual TLS Client Certificate File
+      description: A TLS certificate used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: true
+      default: ""
+      relevantIf:
+        - name: mutual_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: key_file
+      label: Mutual TLS Client Private Key File
+      description: A TLS private key used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: true
+      default: ""
+      relevantIf:
+        - name: mutual_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    # Logging
+    #
+    - name: enable_logs
+      label: Enable Logs
+      description: Enable to collect logs.
+      type: bool
+      default: true
+
+    - name: json_log_paths
+      label: System Log Paths
+      description: File paths for the JSON formatted logs.
+      type: strings
+      default:
+        - "/var/log/elasticsearch/*_server.json"
+        - "/var/log/elasticsearch/*_deprecation.json"
+        - "/var/log/elasticsearch/*_index_search_slowlog.json"
+        - "/var/log/elasticsearch/*_index_indexing_slowlog.json"
+        - "/var/log/elasticsearch/*_audit.json"
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: gc_log_paths
+      label: Garbage Collection Log Paths
+      description: File paths for the garbage collection logs.
+      type: strings
+      default:
+        - "/var/log/elasticsearch/gc.log*"
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: start_at
+      label: Start At
+      description: Start reading file from 'beginning' or 'end'.
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+      advancedConfig: true
+
+  metrics:
+    receivers: |
+      {{ if .enable_metrics }}
+      - elasticsearch:
+          {{ if .enable_tls }}
+          endpoint: https://{{ .hostname }}:{{ .port }}
+          {{ else }}
+          endpoint: http://{{ .hostname }}:{{ .port }}
+          {{ end }}
+          username: {{ .username }}
+          password: {{ .password }}
+          collection_interval: {{ .collection_interval }}s
+          skip_cluster_metrics: {{ .skip_cluster_metrics }}
+          nodes: {{ .nodes }}
+          {{ if .enable_tls }}
+          tls:
+            {{ if .strict_tls_verify }}
+            insecure_skip_verify: false
+            {{ if .ca_file }}
+            ca_file: {{ .ca_file }}
+            {{ end }}
+            {{ else }}
+            insecure_skip_verify: true
+            {{ end }}
+            {{ if .mutual_tls }}
+            cert_file: "{{ .cert_file }}"
+            key_file: "{{ .key_file }}"
+            {{ end }}
+          {{ end }}
+      {{ end }}
+
+    processors: |
+      {{ if .enable_metrics }}
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]
+      {{ end }}
+
+  logs:
+    receivers: |
+      {{ if .enable_logs }}
+      - plugin/elasticsearch:
+          path: $OIQ_OTEL_COLLECTOR_HOME/plugins/elasticsearch_logs.yaml
+          parameters:
+            enable_json_logs: true
+            enable_gc_logs: true
+            json_log_paths:
+            {{ range $fp := .json_log_paths }}
+            - '{{ $fp }}'
+            {{end}}
+            gc_log_paths:
+            {{ range $fp := .gc_log_paths }}
+            - '{{ $fp }}'
+            {{end}}
+            start_at: {{ .start_at }}
+      {{ end }}
+
+    processors: |
+      {{ if .enable_logs }}
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]
+      {{ end }}

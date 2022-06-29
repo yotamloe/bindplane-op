@@ -1,0 +1,113 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: otlp
+  displayName: OpenTelemetry (OTLP)
+  icon: /icons/destinations/otlp.svg
+  description: OpenTelemetry metrics, traces and logs
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    - name: listen_address
+      label: Listen Address
+      description: The IP address to listen on.
+      type: string
+      default: "0.0.0.0"
+
+    - name: grpc_port
+      label: GRPC Port
+      description: TCP port to receive OTLP telemetry using the gRPC protocol. The port used must not be the same as the HTTP port. Set to 0 to disable.
+      type: int
+      default: 4317
+
+    - name: http_port
+      label: HTTP Port
+      description: TCP port to receive OTLP telemetry using the HTTP protocol. The port used must not be the same as the gRPC port. Set to 0 to disable.
+      type: int
+      default: 4318
+
+    - name: enable_tls
+      label: Custom TLS
+      description: Whether or not to use TLS.
+      type: bool
+      default: false
+      advancedConfig: true
+
+    - name: insecure_skip_verify
+      label: Skip TLS Certificate Verification
+      description: Enable to skip TLS certificate verification.
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: ca_file
+      label: TLS Certificate Authority File
+      description: Certificate authority used to validate TLS certificates.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: cert_file
+      label: Mutual TLS Client Certificate File
+      description: A TLS certificate used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: key_file
+      label: Mutual TLS Client Private Key File
+      description: A TLS private key used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+  logs+metrics+traces:
+    receivers: |
+      - otlp:
+          protocols:
+            {{ if .grpc_port }}
+            grpc:
+              endpoint: {{ .listen_address }}:{{ .grpc_port }}
+              {{ if .enable_tls }}
+              tls:
+                insecure_skip_verify: {{ .insecure_skip_verify }}
+                ca_file: "{{ .ca_file }}"
+                cert_file: "{{ .cert_file }}"
+                key_file: "{{ .key_file }}"
+              {{ end }}
+            {{ end }}
+
+            {{ if .http_port }}
+            http:
+              endpoint: {{ .listen_address }}:{{ .http_port }}
+              {{ if .enable_tls }}
+              tls:
+                insecure_skip_verify: {{ .insecure_skip_verify }}
+                ca_file: "{{ .ca_file }}"
+                cert_file: "{{ .cert_file }}"
+                key_file: "{{ .key_file }}"
+              {{ end }}
+            {{ end }}

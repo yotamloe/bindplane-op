@@ -1,0 +1,6 @@
+build/*
+
+# ui docker stage will build the ui
+# avoid copying it from your workstation
+ui/build
+

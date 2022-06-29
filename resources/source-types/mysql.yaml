@@ -1,0 +1,235 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: mysql
+  displayName: MySQL
+  icon: /icons/sources/mysql.svg
+  description: Mysql metrics and logs
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    # Metrics
+    #
+    - name: enable_metrics
+      label: Enable Metrics
+      description: Enable to collect metrics.
+      type: bool
+      default: true
+
+    - name: username
+      label: Username
+      description: Username used to authenticate.
+      type: string
+      required: true
+      default: ""
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+
+    - name: password
+      label: Password
+      description: Password used to authenticate.
+      type: string
+      required: true
+      default: ""
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+
+    - name: endpoint
+      label: Endpoint
+      description: The endpoint of the mysql server.
+      type: string
+      default: localhost:3306
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+
+    - name: transport
+      label: Transport
+      description: The transport protocol being used to connect to Mysql.
+      type: enum
+      validValues:
+        - tcp
+        - unix
+      default: tcp
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+
+    - name: database
+      label: Database
+      description: The database name. If not specified, metrics will be collected for all databases.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: collection_interval
+      label: Collection Interval
+      description: How often (seconds) to scrape for metrics.
+      type: int
+      default: 60
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    # Logging
+    #
+    - name: enable_logs
+      label: Enable Logs
+      description: Enable to collect logs.
+      type: bool
+      default: true
+
+    - name: enable_general_log
+      label: Enable General Log
+      description: Enable to read and parse the general log file.
+      type: bool
+      default: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: general_log_paths
+      label: General Log Path
+      description: Path to the general log file(s).
+      type: strings
+      default:
+        - "/var/log/mysql/general.log"
+      relevantIf:
+        - name: enable_general_log
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: enable_slow_log
+      label: Enable Slow Log
+      description: Enable to read and parse the slow query log.
+      type: bool
+      default: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: slow_query_log_paths
+      label: Slow Query Log Path
+      description: Path to the slow query log file(s).
+      type: strings
+      default:
+        - "/var/log/mysql/slow*.log"
+      relevantIf:
+        - name: enable_slow_log
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: enable_error_log
+      label: Enable Error Log
+      description: Enable to read and parse the error log.
+      type: bool
+      default: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: error_log_paths
+      label: Error Log Path
+      description: Path to the error log file(s).
+      type: strings
+      default:
+        # Default log path for CentOS / RHEL
+        - "/var/log/mysqld.log"
+        # Default log path for SLES
+        - "/var/log/mysql/mysqld.log"
+        # Default log path for Debian / Ubuntu
+        - "/var/log/mysql/error.log"
+      relevantIf:
+        - name: enable_error_log
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: start_at
+      label: Start At
+      description: Start reading file from 'beginning' or 'end'.
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+      advancedConfig: true
+
+  metrics:
+    receivers: |
+      {{ if .enable_metrics }}
+      - mysql:
+          username: {{ .username }}
+          password: {{ .password }}
+          endpoint: {{ .endpoint }}
+          transport: {{ .transport }}
+          collection_interval: "{{ .collection_interval }}s"
+          database: {{ .database }}
+      {{ end }}
+
+    processors: |
+      {{ if .enable_metrics }}
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]
+      {{ end }}
+
+  logs:
+    receivers: |
+      {{ if .enable_logs }}
+      - plugin/mysql:
+          path: $OIQ_OTEL_COLLECTOR_HOME/plugins/mysql_logs.yaml
+          parameters:
+            enable_general_log: {{ .enable_general_log }}
+            general_log_paths:
+            {{ range $fp := .general_log_paths }}
+            - '{{ $fp }}'
+            {{end}}
+            enable_slow_log: {{ .enable_slow_log }}
+            slow_query_log_paths:
+            {{ range $fp := .slow_query_log_paths }}
+            - '{{ $fp }}'
+            {{end}}
+            enable_error_log: {{ .enable_error_log }}
+            error_log_paths:
+            {{ range $fp := .error_log_paths }}
+            - '{{ $fp }}'
+            {{end}}
+            enable_mariadb_audit_log: false
+            start_at: {{ .start_at }}
+      {{ end }}
+
+    processors: |
+      {{ if .enable_logs }}
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]
+      {{ end }}

@@ -1,0 +1,14 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Configuration
+metadata:
+  name: macos
+  labels:
+    platform: macos
+    app: cabin
+spec:
+  raw: ""
+  sources:
+  destinations:
+  selector:
+    matchLabels:
+      "configuration": macos

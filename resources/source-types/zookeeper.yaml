@@ -1,0 +1,43 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: zookeeper
+  displayName: ZooKeeper
+  icon: /icons/sources/zookeeper.svg
+  description: ZooKeeper Metrics
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    - name: collection_interval
+      label: Collection Interval
+      description: How often (seconds) to scrape for metrics.
+      type: int
+      default: 60
+
+    - name: address
+      label: Address
+      description: IP address or hostname of the ZooKeeper system.
+      type: string
+      default: localhost
+
+    - name: port
+      label: Port
+      description: Port of the ZooKeeper system.
+      type: int
+      default: 2181
+
+  metrics:
+    receivers: |
+      - zookeeper:
+          endpoint: {{ .address }}:{{ .port }}
+          collection_interval: {{ .collection_interval }}s
+
+    processors: |
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]

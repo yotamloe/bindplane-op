@@ -1,0 +1,107 @@
+
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: MacOS
+spec:
+  # settings below take directly from stanza-plugins
+  version: 0.0.2
+  supportedPlatforms:
+    - macos
+  parameters:
+    - name: no_type
+
+    - type: strings
+
+    - name: bad-name
+
+    - name: bad_type
+      type: bad-type
+
+    - name: no_valid_values
+      type: enum
+
+    - name: has_valid_values
+      type: strings
+      validValues:
+        - not
+        - supposed
+        - to
+        - be
+        - here
+
+    - name: bad_string_default
+      type: string
+      default: 4
+
+    - name: bad_bool_default
+      type: bool
+      default: 4
+
+    - name: bad_strings_default
+      type: strings
+      default: 4
+
+    - name: bad_int_default
+      type: int
+      default: "four"
+
+    - name: ok_int_default
+      type: int
+      default: 4.0
+
+    - name: bad_int_default_as_float
+      type: int
+      default: 4.1
+
+    - name: bad_enum_default
+      type: enum
+      validValues: ["1", "2", "3"]
+      default: "4"
+
+    - name: string_default_1
+      type: string
+      default: "hello"
+
+    - name: string_default_2
+      type: string
+      default: "hello"
+
+    - name: string_default_3
+      type: string
+      default: "hello"
+
+    - name: bad_relevant_if_2
+      type: string
+      relevantIf:
+        # missing name
+        - operator: equals
+          value: 3
+        # parameter doesn't exist
+        - name: does_not_exist
+          operator: equals
+          value: 3
+        # wrong value format
+        - name: string_default_1
+          operator: equals
+          value: 3
+        # missing operator
+        - name: string_default_2
+          value: "3"
+        # missing value (ok will compare to zero value)
+        - name: string_default_3
+          operator: equals
+        - name: bad_enum_default
+          operator: equals
+          value: "5"
+        - name: bad_bool_default
+          operator: equals
+          value: 4
+
+  metrics:
+    # receivers, processors, exporters, and extensions can all be specified
+    receivers: |
+      - hostmetrics:
+          collection_interval: 1m
+          scrapers:
+            load:

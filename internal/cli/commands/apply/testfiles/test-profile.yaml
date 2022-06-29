@@ -1,0 +1,19 @@
+---
+apiVersion: bindplane.observiq.com/v1beta
+kind: Profile
+metadata:
+  name: local
+spec:
+  host: "192.168.64.1"
+  port: "5000"
+  server:
+    enableGraphQL: true
+    enableRest: true
+  username: admin
+  password: admin
+  serverUrl: "https://remote-address.com"
+---
+apiVersion: bindplane.observiq.com/v1beta
+kind: Context
+spec:
+  currentContext: local

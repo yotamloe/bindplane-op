@@ -1,0 +1,262 @@
+before:
+  hooks:
+    - make release-prep VERSION={{ .Version }}
+    - make ci
+    - make ui-build
+
+builds:
+- id: bindplane
+  main: ./cmd/bindplane
+  env:
+    - CGO_ENABLED=0
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  goos:
+    - windows
+    - linux
+    - darwin
+  goarch:
+    - amd64
+    - arm64
+    - arm
+  ignore:
+    - goos: windows
+      goarch: arm
+  binary: 'bindplane'
+  ldflags:
+    - -X github.com/observiq/bindplane/internal/version.gitTag=v{{ .Version }}
+- id: bindplanectl
+  main: ./cmd/bindplanectl
+  env:
+    - CGO_ENABLED=0
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  goos:
+    - windows
+    - linux
+    - darwin
+  goarch:
+    - amd64
+    - arm64
+    - arm
+  ignore:
+    - goos: windows
+      goarch: arm
+  binary: 'bindplanectl'
+  ldflags:
+    - -X github.com/observiq/bindplane/internal/version.gitTag=v{{ .Version }}
+
+archives:
+- format: zip
+  # bindplane-v1.0.0-linux-amd64
+  name_template: 'bindplane-v{{ .Version }}-{{ .Os }}-{{ .Arch }}'
+
+nfpms:
+- id: bindplanectl
+  package_name: bindplanectl
+  builds:
+    - bindplanectl
+  vendor: observIQ, Inc
+  homepage: https://github.com/observIQ/bindplane
+  maintainer: observIQ, Inc
+  description: Next generation agent management platform
+  license: Apache 2.0
+  formats:
+  - rpm
+  - deb
+  - apk
+  bindir: /usr/local/bin
+
+- id: bindplane
+  package_name: bindplane
+  builds:
+    - bindplane
+  vendor: observIQ, Inc
+  homepage: https://github.com/observIQ/bindplane
+  maintainer: observIQ, Inc
+  description: Next generation agent management platform
+  license: Apache 2.0
+  formats:
+  - rpm
+  - deb
+  bindir: /usr/local/bin
+  contents:
+  - dst: /var/lib/bindplane
+    type: dir
+    file_info:
+      owner: bindplane
+      group: bindplane
+      mode: 0750
+  - dst: /var/lib/bindplane/storage
+    type: dir
+    file_info:
+      owner: bindplane
+      group: bindplane
+      mode: 0750
+  - dst: /var/lib/bindplane/downloads
+    type: dir
+    file_info:
+      owner: bindplane
+      group: bindplane
+      mode: 0750
+  - dst: /var/log/bindplane
+    type: dir
+    file_info:
+      owner: bindplane
+      group: bindplane
+      mode: 0750
+  - src: scripts/systemd/bindplane.service
+    dst: /usr/lib/systemd/system/bindplane.service
+    type: "config"
+    file_info:
+      owner: root
+      group: root
+      mode: 0640
+  - dst: /etc/bindplane
+    type: dir
+    file_info:
+      owner: bindplane
+      group: bindplane
+      mode: 0750
+  - src: scripts/package/bindplane.example.yaml
+    dst: /etc/bindplane/config.yaml
+    type: "config|noreplace"
+    file_info:
+      owner: bindplane
+      group: bindplane
+      mode: 0640
+  scripts:
+    preinstall: "./scripts/package/preinstall.sh"
+    postinstall: ./scripts/package/postinstall.sh
+
+dockers:
+- goos: linux
+  goarch: amd64
+  ids:
+  - bindplane
+  image_templates:
+  - "observiq/bindplane-amd64:latest"
+  - "observiq/bindplane-amd64:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+  - "observiq/bindplane-amd64:{{ .Major }}.{{ .Minor }}"
+  - "observiq/bindplane-amd64:{{ .Major }}"
+  # ShortCommit: git rev-parse --short HEAD
+  - "observiq/bindplane-amd64:{{ .ShortCommit }}"
+  dockerfile: ./Dockerfile
+  use: buildx
+  build_flag_templates:
+  - "--label=created={{.Date}}"
+  - "--label=title={{.ProjectName}}"
+  - "--label=revision={{.FullCommit}}"
+  - "--label=version={{.Version}}"
+  - "--platform=linux/amd64"
+- goos: linux
+  goarch: arm64
+  ids:
+  - bindplane
+  image_templates:
+  - "observiq/bindplane-arm64:latest"
+  - "observiq/bindplane-arm64:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+  - "observiq/bindplane-arm64:{{ .Major }}.{{ .Minor }}"
+  - "observiq/bindplane-arm64:{{ .Major }}"
+  # ShortCommit: git rev-parse --short HEAD
+  - "observiq/bindplane-arm64:{{ .ShortCommit }}"
+  dockerfile: ./Dockerfile
+  use: buildx
+  build_flag_templates:
+  - "--label=created={{.Date}}"
+  - "--label=title={{.ProjectName}}"
+  - "--label=revision={{.FullCommit}}"
+  - "--label=version={{.Version}}"
+  - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "observiq/bindplane:latest"
+    image_templates:
+      - "observiq/bindplane-amd64:latest"
+      - "observiq/bindplane-arm64:latest"
+    skip_push: false
+  - name_template: "observiq/bindplane:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+    image_templates:
+      - "observiq/bindplane-amd64:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "observiq/bindplane-arm64:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+    skip_push: false
+  - name_template: "observiq/bindplane:{{ .Major }}.{{ .Minor }}"
+    image_templates:
+      - "observiq/bindplane-amd64:{{ .Major }}.{{ .Minor }}"
+      - "observiq/bindplane-arm64:{{ .Major }}.{{ .Minor }}"
+    skip_push: false
+  - name_template: "observiq/bindplane:{{ .Major }}"
+    image_templates:
+      - "observiq/bindplane-amd64:{{ .Major }}"
+      - "observiq/bindplane-arm64:{{ .Major }}"
+    skip_push: false
+  # ShortCommit: git rev-parse --short HEAD
+  - name_template: "observiq/bindplane:{{ .ShortCommit }}"
+    image_templates:
+      - "observiq/bindplane-amd64:{{ .ShortCommit }}"
+      - "observiq/bindplane-arm64:{{ .ShortCommit }}"
+
+
+checksum:
+  name_template: '{{ .ProjectName }}-v{{ .Version }}-SHA256SUMS'
+  algorithm: sha256
+
+brews:
+- name: bindplane
+  tap:
+    owner: observIQ
+    name: homebrew-bindplane
+    branch: master
+  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
+  custom_require: "lib/private.rb"
+  folder: Formula
+  url_template: https://github.com/observIQ/bindplane/releases/download/{{ .Tag }}/{{ .ArtifactName }}
+  commit_author:
+    name: bindplane
+    email: support@observiq.com
+  homepage: "https://github.com/observiq/bindplane"
+  license: "Apache 2.0"
+
+release:
+  # brew will fail if the release is a "draft"
+  draft: false
+  prerelease: "true"
+  extra_files:
+    - glob: release-stage/install-linux.sh
+    - glob: release-stage/install-macos.sh
+
+changelog:
+  skip: false
+  use: github
+  sort: asc
+  groups:
+    - title: 'New Features'
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug Fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 10
+    - title: 'Dependencies'
+      regexp: '^deps\(deps.*?\):\s.*$'
+      order: 30
+    - title: Other
+      order: 999
+
+blobs:
+- provider: gs
+  bucket: observiq-cloud
+  folder: bindplane/{{.Version}}
+  extra_files:
+    - glob: release-stage/install-linux.sh
+    - glob: release-stage/install-macos.sh
+- provider: gs
+  bucket: observiq-cloud
+  folder: bindplane/latest
+  extra_files:
+    - glob: release-stage/install-linux.sh
+    - glob: release-stage/install-macos.sh
+
+announce:
+  slack:
+    enabled: true
+    message_template: 'BindPlane OP {{.Tag}} has been released: https://github.com/observIQ/bindplane-op/releases.'
+    channel: '#iris'
+    username: 'Goreleaser'

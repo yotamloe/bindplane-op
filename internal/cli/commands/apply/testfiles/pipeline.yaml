@@ -1,0 +1,20 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Pipeline
+metadata:
+  name: cabin production pipeline
+  labels:
+    app: cabin
+spec:
+  pipeline:
+    receivers:
+    - production-nginx-ingress
+    processors:
+    exporters:
+    - cabin-production-logs
+  # agents with labels "app=cabin" and "env=production" will use this exporter
+  selector:
+    matchLabels:
+      app: cabin
+      env: production
+      # platform: kubernetes
+      # cluster: cabin-production

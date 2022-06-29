@@ -1,0 +1,54 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: cassandra
+  displayName: Cassandra
+  icon: /icons/sources/cassandra.svg
+  description: Tomcat Metrics
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    - name: collection_interval
+      label: Collection Interval
+      description: How often (seconds) to scrape for metrics.
+      type: int
+      default: 60
+
+    - name: address
+      label: Address
+      description: IP address or hostname to scrape for JMX metrics.
+      type: string
+      default: localhost
+
+    - name: port
+      label: Port
+      description: Port to scrape for JMX metrics.
+      type: int
+      default: 7199
+
+    - name: jar_path
+      label: JMX Metrics Collection Jar Path
+      description: Full path to the JMX metrics jar.
+      type: string
+      default: "/opt/opentelemetry-java-contrib-jmx-metrics.jar"
+      advancedConfig: true
+
+  metrics:
+    receivers: |
+      - jmx:
+          jar_path: {{ .jar_path }}
+          collection_interval: {{ .collection_interval }}s
+          endpoint: {{ .address }}:{{ .port }}
+          target_system: cassandra
+          resource_attributes:
+            cassandra.endpoint: {{ .address }}:{{ .port }}
+
+    processors: |
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]

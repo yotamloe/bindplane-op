@@ -1,0 +1,17 @@
+.button-row {
+  display: flex;
+  justify-content: space-around;
+  position: relative;
+  top: -40px;
+  max-width: 800px;
+}
+
+.code-container {
+  max-height: 300px;
+  transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+}
+
+.expanded {
+  max-height: 10000px;
+  transition: max-height 0.5s ease-in-out;
+}

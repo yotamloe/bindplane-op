@@ -1,0 +1,73 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: journald
+  displayName: Journald
+  icon: /icons/sources/journald.svg
+  description: Journald Logs
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - linux
+  parameters:
+    # Example:
+    # - ssh
+    # - kubelet
+    # - docker
+    # - containerd
+    - name: units
+      label: Units
+      description: Service Units to filter on. If not set, all units will be read.
+      type: strings
+      default: []
+
+    - name: directory
+      label: Journal Directory
+      description: The directory containing Journald's log files. If not set, /run/log/journal and /run/journal will be used.
+      type: string
+      default: ""
+      advancedConfig: true
+
+    - name: priority
+      label: Priority
+      description:
+      type: enum
+      default: "info"
+      validValues:
+        - "trace"
+        - "info"
+        - "warn"
+        - "error"
+        - "fatal"
+      advancedConfig: true
+
+    - name: start_at
+      label: Start At
+      description: Start reading journal from 'beginning' or 'end'.
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
+      advancedConfig: true
+
+  logs:
+    receivers: |
+      - journald:
+          {{ if .directory }}
+          directory: "{{ .directory }}"
+          {{ end }}
+          {{ if .units }}
+          units:
+            {{ range $unit := .units }}
+            - '{{ $unit }}'
+            {{end}}
+          {{ end }}
+          priority: {{ .priority }}
+          start_at: {{ .start_at }}
+
+    processors: |
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]

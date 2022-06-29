@@ -1,0 +1,111 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: file
+  displayName: File
+  icon: /icons/sources/file.svg
+  description: Host metrics
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    - name: file_path
+      label: File Path(s)
+      description: File or directory paths to tail for logs.
+      type: strings
+      default: []
+      required: true
+
+    - name: exclude_file_path
+      label: Exclude File Path(s)
+      description: File or directory paths to exclude.
+      type: strings
+      default: [""]
+
+    - name: log_type
+      label: Log Type
+      description: A friendly name that will be added to each log entry as an attribute.
+      type: string
+      default: "file"
+
+    - name: parse_format
+      label: Parse Format
+      description: Method to use when parsing. When regex is selected, 'Regex Pattern' must be set.
+      type: enum
+      default: none
+      validValues:
+        - none
+        - json
+        - regex
+
+    - name: regex_pattern
+      label: Regex Pattern
+      description: The regex pattern used when parsing log entries.
+      type: string
+      default: ""
+      relevantIf:
+        - name: parse_format
+          operator: equals
+          value: "regex"
+
+    - name: start_at
+      label: Start At
+      description: Start reading file from 'beginning' or 'end'.
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
+      advancedConfig: true
+
+    - name: multiline_line_start_pattern
+      label: Multiline Start Pattern
+      description: Regex pattern that matches beginning of a log entry, for handling multiline logs.
+      type: string
+      default: ""
+      advancedConfig: true
+
+    - name: encoding
+      label: Encoding
+      description: The encoding of the file being read.
+      type: enum
+      default: utf-8
+      validValues:
+        - nop
+        - utf-8
+        - utf-16le
+        - utf-16be
+        - ascii
+        - big5
+      advancedConfig: true
+
+  logs:
+    receivers: |
+      - plugin:
+          path: $OIQ_OTEL_COLLECTOR_HOME/plugins/file_logs.yaml
+          parameters:
+            file_path:
+              {{ range $fp := .file_path }}
+              - '{{ $fp }}'
+              {{end}}
+            exclude_file_path:
+              {{ range $fp := .exclude_file_path }}
+              - '{{ $fp }}'
+              {{end}}
+            multiline_line_start_pattern: '{{ .multiline_line_start_pattern }}'
+            encoding: {{ .encoding }}
+            parse_format: {{ .parse_format }}
+            {{ if eq .parse_format "regex" }}
+            regex_pattern: '{{ .regex_pattern }}'
+            {{ end }}
+            log_type: {{ .log_type }}
+            start_at: {{ .start_at }}
+
+    processors: |
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]

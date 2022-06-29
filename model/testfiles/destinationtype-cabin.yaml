@@ -1,0 +1,27 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  name: observiq-cloud
+  displayName: observIQ Cloud
+  icon: /public/bindplane-logo.png
+spec:
+  parameters:
+    - name: endpoint
+      label: Endpoint
+      description: API Endpoint for observIQ Cloud
+      type: string
+      default: https://nozzle.app.observiq.com
+    - name: secret_key
+      label: Secret Key
+      description: Secret Key provided by observIQ Cloud
+      type: string
+      required: true
+  logs:
+    processors: |
+      # batch should be last
+      - batch:
+    exporters: |
+      - observiq:
+          secret_key: {{ .secret_key }}
+          endpoint: {{ .endpoint }}
+          timeout: 10s

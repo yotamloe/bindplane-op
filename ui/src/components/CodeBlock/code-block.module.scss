@@ -1,0 +1,24 @@
+@use "../../styles/colors";
+
+.paper {
+  max-width: 600px;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono,
+    Menlo, monospace;
+  font-size: 12px;
+
+  border: 1px solid colors.$dark-gray !important;
+}
+
+.block-header {
+  border-radius: 4px;
+  padding: 0 0.5rem;
+  text-align: right;
+  background-color: #ffffff;
+}
+
+.block-content {
+  background-color: colors.$light-gray;
+  border-top: 1px solid colors.$dark-gray;
+  padding: 0.5rem;
+  border-radius: 0 0 4px 4px;
+}

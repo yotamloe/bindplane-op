@@ -1,0 +1,39 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  name: newrelic_otlp
+  displayName: New Relic
+  icon: /icons/destinations/newrelic_otlp.svg
+spec:
+  parameters:
+    - name: endpoint
+      label: OTLP Endpoint
+      description: |
+        Endpoint where the exporter sends data to New Relic. Endpoints are region-specific,
+        so use the one according to where your account is based.
+      type: enum
+      validValues:
+        - https://otlp.nr-data.net
+        - https://otlp.eu01.nr-data.net
+        - https://gov-otlp.nr-data.net
+      required: true
+      default: https://otlp.nr-data.net
+
+    - name: license_key
+      label: License Key
+      description: License key used for data ingest.
+      type: string
+      required: true
+      default: ""
+
+  logs+metrics+traces:
+    exporters: |
+      - otlp:
+          endpoint: {{ .endpoint }}:443
+          headers:
+            - api-key: "{{ .license_key }}"
+          tls:
+            insecure: false
+    processors: |
+      - batch:
+

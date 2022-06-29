@@ -1,0 +1,16 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Exporter
+metadata:
+  name: cabin-production-logs
+spec:
+  plugin:
+    # Shouldn't be an array
+    name: [cabin_output]
+  parameters:
+  - name: endpoint
+    value: https://nozzle.app.observiq.com
+  - name: secret_key
+    value: 2c088c5e-2afc-483b-be52-e2b657fcff08
+    # Should be a string
+  - name: 10
+    value: 10s

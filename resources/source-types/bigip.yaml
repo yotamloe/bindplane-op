@@ -1,0 +1,124 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: bigip
+  displayName: F5 Big-IP
+  icon: /icons/sources/f5_bigip.svg
+  description: F5 Big-IP metrics scraper
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - macos
+    - linux
+    - windows
+  parameters:
+    - name: address
+      label: Address
+      description: The hostname or IP address of the Big-IP environment.
+      type: string
+      default: ""
+      required: true
+
+    - name: port
+      label: Port
+      description: The TCP port of the Big-IP environment.
+      type: int
+      default: 443
+
+    - name: username
+      label: Username
+      description: Username used for authenticating with Big-Ip.
+      type: string
+      default: ""
+      required: true
+
+    - name: password
+      label: Password
+      description: Password used for authenticating with Big-Ip.
+      type: string
+      default: ""
+      required: true
+
+    - name: collection_interval
+      label: Collection Interval
+      description: How often (seconds) to scrape for metrics.
+      type: int
+      default: 60
+      advancedConfig: true
+
+    - name: strict_tls_verify
+      label: Strict TLS Certificate Verification
+      description: Enable to require TLS certificate verification.
+      type: bool
+      default: false
+      advancedConfig: true
+
+    - name: ca_file
+      label: TLS Certificate Authority File
+      description: Certificate authority used to validate TLS certificates. Not required if the collector's operating system already trusts the certificate authority.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: strict_tls_verify
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: mutual_tls
+      label: Mutual TLS Authentication
+      description: Enable to require TLS mutual authentication.
+      type: bool
+      default: false
+      relevantIf:
+        - name: strict_tls_verify
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: cert_file
+      label: Mutual TLS Client Certificate File
+      description: A TLS certificate used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: true
+      default: ""
+      relevantIf:
+        - name: mutual_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: key_file
+      label: Mutual TLS Client Private Key File
+      description: A TLS private key used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: true
+      default: ""
+      relevantIf:
+        - name: mutual_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+  metrics:
+    receivers: |
+      - bigip:
+          username: {{ .username }}
+          password: {{ .password }}
+          collection_interval: {{ .collection_interval }}s
+          endpoint: https://{{ .address }}:{{ .port }}
+          tls:
+            {{ if .strict_tls_verify }}
+            insecure_skip_verify: false
+            {{ else }}
+            insecure_skip_verify: true
+            {{ end }}
+            ca_file: "{{ .ca_file }}"
+            cert_file: "{{ .cert_file }}"
+            key_file: "{{ .key_file }}"
+
+    processors: |
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]

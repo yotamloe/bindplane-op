@@ -1,0 +1,140 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: macOS
+  displayName: macOS
+  icon: /icons/sources/macos.svg
+  description: macOS metrics and logs
+spec:
+  version: 0.0.1
+  supportedPlatforms:
+    - macos
+  parameters:
+    # Metrics
+    #
+    - name: enable_metrics
+      label: Enable Metrics
+      description: Enable to collect metrics.
+      type: bool
+      default: true
+
+    - name: host_collection_interval
+      label: Metric Collection Interval
+      description: How often (seconds) to scrape for metrics.
+      type: int
+      default: 60
+      relevantIf:
+        - name: enable_metrics
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    # Logging
+    #
+    - name: enable_logs
+      label: Enable Logs
+      description: Enable to collect logs.
+      type: bool
+      default: true
+
+    - name: enable_system_log
+      label: System Logs
+      description: Enable to collect macOS system logs.
+      type: bool
+      default: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: system_log_path
+      label: System Log Path
+      description: The absolute path to the System log.
+      type: string
+      default: "/var/log/system.log"
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+        - name: enable_system_log
+          operator: equals
+          value: true
+
+    - name: enable_install_log
+      label: Install Logs
+      description: Enable to collect macOS install logs.
+      type: bool
+      default: true
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+
+    - name: install_log_path
+      label: Install Log Path
+      description: The absolute path to the Install log.
+      type: string
+      default: "/var/log/install.log"
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+        - name: enable_install_log
+          operator: equals
+          value: true
+
+    - name: start_at
+      label: Start At
+      description: Start reading file from 'beginning' or 'end'.
+      type: enum
+      validValues:
+        - beginning
+        - end
+      default: end
+      relevantIf:
+        - name: enable_logs
+          operator: equals
+          value: true
+      advancedConfig: true
+
+  metrics:
+    receivers: |
+      {{ if .enable_metrics }}
+      - hostmetrics:
+          host_collection_interval: {{ .host_collection_interval }}s
+          scrapers:
+            load:
+            filesystem:
+            memory:
+            network:
+            paging:
+      {{ end }}
+
+    processors: |
+      {{ if .enable_metrics }}
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]
+      {{ end }}
+
+  logs:
+    receivers: |
+      {{ if .enable_logs }}
+      - plugin/macos:
+          path: $OIQ_OTEL_COLLECTOR_HOME/plugins/macos_logs.yaml
+          parameters:
+            enable_system_log: {{ .enable_system_log }}
+            system_log_path: {{ .system_log_path }}
+            enable_install_log: {{ .enable_install_log }}
+            install_log_path: {{ .install_log_path }}
+            start_at: {{ .start_at }}
+      {{ end }}
+
+    processors: |
+      {{ if .enable_logs }}
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]
+      {{ end }}

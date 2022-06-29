@@ -1,0 +1,44 @@
+@use '../../styles/colors';
+
+.container {
+  margin: auto;
+  min-width: 800px;
+  max-width: 1200px;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: row;
+}
+
+.left {
+  min-width: 276px;
+  width: 276px;
+  padding: 24px 20px;
+
+  background-color: #ffffff;
+
+  background-repeat: no-repeat;
+  background-position: left -75px bottom -155px;
+  background-size: 832px;
+  border-right: 1px solid colors.$dark-gray;
+  border-radius: 8px 0 0 8px;
+
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 20px;
+  background-color: rgb(248, 249, 250);
+}
+
+.buttons {
+  height: 0;
+
+  button {
+    float: right;
+  }
+}

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo "Running pre commit hook. . ."
+
+if ! (cd ui && npm run check-node-versions); then
+	cat <<\EOF
+Error: npm or node version doesn't match
+EOF
+	exit 1
+fi
+
+echo "Running linter. . ."
+make lint
+
+echo "Running swagger. . ."
+make swagger
+
+echo "Pre commit finished."

@@ -1,0 +1,29 @@
+.root {
+  padding: 0 !important;
+}
+
+.item::before {
+  content: none !important;
+}
+
+.dot {
+  height: 4px;
+  width: 4px;
+  border-width: 4px !important;
+
+  margin: 9px 0 !important;
+
+  box-shadow: none;
+}
+
+.label {
+  font-size: 1rem !important;
+}
+
+.description {
+  font-size: 12px !important;
+}
+
+.content {
+  min-height: 100px;
+}

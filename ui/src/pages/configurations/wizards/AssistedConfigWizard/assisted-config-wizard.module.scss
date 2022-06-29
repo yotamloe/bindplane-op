@@ -1,0 +1,45 @@
+@use '../../../../styles/typography';
+
+.form {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin-bottom: 12px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.resource-card {
+  width: 50px;
+  height: 50px;
+}
+
+.new-resource-card {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+}
+
+.icon {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 30px;
+
+  width: 40px;
+  height: 40px;
+}

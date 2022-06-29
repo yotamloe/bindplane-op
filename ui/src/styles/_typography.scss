@@ -1,0 +1,28 @@
+// Font sizes
+$base-font-size: rem-calc(14px);
+
+// Font weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semi-bold: 600;
+$font-weight-bold: 700;
+
+// Font families
+$font-family-montserrat: "Montserrat", sans-serif;
+$font-family-open-sans: "Open Sans", sans-serif;
+$font-family-monospace: "Roboto Mono", "Monaco", "Menlo", "Ubuntu Mono",
+  "Consolas", "source-code-pro", monospace;
+
+$font-family-proxima-soft: proxima-soft, sans-serif;
+$font-family-source-sans: source-sans-pro, sans-serif;
+
+$font-size-heading-md: 1.424rem;
+$font-size-heading-sm: 1.125rem;
+$font-size-body-reg: rem-calc(16px);
+$font-size-body-sm: rem-calc(14px);
+
+@mixin base-heading-styles {
+  font-family: $font-family-montserrat;
+  font-weight: $font-weight-semi-bold;
+}

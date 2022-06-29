@@ -1,0 +1,11 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: otlp
+spec:
+  logs+metrics+traces:
+    receivers: |
+      - otlp:
+          protocols:
+            grpc:
+            http:

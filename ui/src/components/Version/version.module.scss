@@ -1,0 +1,13 @@
+@use "../../styles/colors";
+
+.root {
+  position: fixed;
+
+  right: 10px;
+  bottom: 0;
+
+  z-index: 0;
+
+  color: colors.$waikawa-gray;
+  opacity: 0.75;
+}

@@ -1,0 +1,1052 @@
+definitions:
+  model.Agent:
+    properties:
+      arch:
+        type: string
+      configuration:
+        description: tracked by BindPlane
+      connectedAt:
+        type: string
+      disconnectedAt:
+        type: string
+      errorMessage:
+        type: string
+      home:
+        type: string
+      hostname:
+        type: string
+      id:
+        type: string
+      labels:
+        $ref: '#/definitions/model.Labels'
+      macAddress:
+        type: string
+      name:
+        type: string
+      operatingSystem:
+        type: string
+      platform:
+        type: string
+      remoteAddress:
+        type: string
+      status:
+        description: reported by Status messages
+        type: integer
+      type:
+        type: string
+      version:
+        type: string
+    type: object
+  model.AgentLabelsPayload:
+    properties:
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  model.AgentLabelsResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      labels:
+        $ref: '#/definitions/model.Labels'
+    type: object
+  model.AgentResponse:
+    properties:
+      agent:
+        $ref: '#/definitions/model.Agent'
+    type: object
+  model.AgentSelector:
+    type: object
+  model.AgentsResponse:
+    properties:
+      agents:
+        items:
+          $ref: '#/definitions/model.Agent'
+        type: array
+    type: object
+  model.AnyResource:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/model.Metadata'
+      spec:
+        additionalProperties: true
+        type: object
+    type: object
+  model.ApplyResponse:
+    properties:
+      updates:
+        items:
+          $ref: '#/definitions/model.ResourceStatus'
+        type: array
+    type: object
+  model.BulkAgentLabelsResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+    type: object
+  model.Configuration:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/model.Metadata'
+      spec:
+        $ref: '#/definitions/model.ConfigurationSpec'
+        description: Spec TODO(doc)
+    type: object
+  model.ConfigurationResponse:
+    properties:
+      configuration:
+        $ref: '#/definitions/model.Configuration'
+      raw:
+        type: string
+    type: object
+  model.ConfigurationSpec:
+    properties:
+      contentType:
+        type: string
+      destinations:
+        items:
+          $ref: '#/definitions/model.ResourceConfiguration'
+        type: array
+      raw:
+        type: string
+      selector:
+        $ref: '#/definitions/model.AgentSelector'
+      sources:
+        items:
+          $ref: '#/definitions/model.ResourceConfiguration'
+        type: array
+    type: object
+  model.ConfigurationsResponse:
+    properties:
+      configurations:
+        items:
+          $ref: '#/definitions/model.Configuration'
+        type: array
+    type: object
+  model.DeleteAgentsResponse:
+    properties:
+      agents:
+        items:
+          $ref: '#/definitions/model.Agent'
+        type: array
+    type: object
+  model.DeleteResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      updates:
+        items:
+          $ref: '#/definitions/model.ResourceStatus'
+        type: array
+    type: object
+  model.Destination:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/model.Metadata'
+      spec:
+        $ref: '#/definitions/model.ParameterizedSpec'
+        description: Spec TODO(doc)
+    type: object
+  model.DestinationResponse:
+    properties:
+      destination:
+        $ref: '#/definitions/model.Destination'
+    type: object
+  model.DestinationType:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/model.Metadata'
+      spec:
+        $ref: '#/definitions/model.ResourceTypeSpec'
+    type: object
+  model.DestinationTypeResponse:
+    properties:
+      destinationType:
+        $ref: '#/definitions/model.DestinationType'
+    type: object
+  model.DestinationTypesResponse:
+    properties:
+      destinationTypes:
+        items:
+          $ref: '#/definitions/model.DestinationType'
+        type: array
+    type: object
+  model.DestinationsResponse:
+    properties:
+      destinations:
+        items:
+          $ref: '#/definitions/model.Destination'
+        type: array
+    type: object
+  model.InstallCommandResponse:
+    properties:
+      command:
+        type: string
+    type: object
+  model.Labels:
+    type: object
+  model.Metadata:
+    properties:
+      description:
+        type: string
+      displayName:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      labels:
+        $ref: '#/definitions/model.Labels'
+      name:
+        type: string
+    type: object
+  model.Parameter:
+    properties:
+      name:
+        type: string
+      value:
+        description: 'This could be any of the following: string, bool, int, enum
+          (string), float, []string'
+    type: object
+  model.ParameterDefinition:
+    properties:
+      advancedConfig:
+        type: boolean
+      default:
+        description: Must be valid according to Type & ValidValues
+      description:
+        type: string
+      hidden:
+        type: boolean
+      label:
+        type: string
+      name:
+        type: string
+      relevantIf:
+        items:
+          $ref: '#/definitions/model.RelevantIfCondition'
+        type: array
+      required:
+        type: boolean
+      type:
+        description: '"string", "int", "bool", "strings", or "enum"'
+        type: string
+      validValues:
+        description: only useable if Type == "enum"
+        items:
+          type: string
+        type: array
+    type: object
+  model.ParameterizedSpec:
+    properties:
+      parameters:
+        items:
+          $ref: '#/definitions/model.Parameter'
+        type: array
+      type:
+        type: string
+    type: object
+  model.RelevantIfCondition:
+    properties:
+      name:
+        type: string
+      operator:
+        type: string
+      value:
+        type: any
+    type: object
+  model.ResourceConfiguration:
+    properties:
+      name:
+        type: string
+      parameters:
+        items:
+          $ref: '#/definitions/model.Parameter'
+        type: array
+      type:
+        type: string
+    type: object
+  model.ResourceStatus:
+    properties:
+      reason:
+        description: Reason will be set if status is invalid or error
+        type: string
+      resource:
+        description: Resource TODO(doc)
+      status:
+        description: Status TODO(doc)
+        type: string
+    type: object
+  model.ResourceTypeOutput:
+    properties:
+      exporters:
+        type: string
+      extensions:
+        type: string
+      processors:
+        type: string
+      receivers:
+        type: string
+    type: object
+  model.ResourceTypeSpec:
+    properties:
+      logs:
+        $ref: '#/definitions/model.ResourceTypeOutput'
+        description: individual
+      logs+metrics:
+        $ref: '#/definitions/model.ResourceTypeOutput'
+        description: pairs (alphabetical order)
+      logs+metrics+traces:
+        $ref: '#/definitions/model.ResourceTypeOutput'
+        description: all three (alphabetical order)
+      logs+traces:
+        $ref: '#/definitions/model.ResourceTypeOutput'
+      metrics:
+        $ref: '#/definitions/model.ResourceTypeOutput'
+      metrics+traces:
+        $ref: '#/definitions/model.ResourceTypeOutput'
+      parameters:
+        description: |-
+          Parameters currently uses the model from stanza. Eventually we will probably create a separate definition for
+          BindPlane.
+        items:
+          $ref: '#/definitions/model.ParameterDefinition'
+        type: array
+      supportedPlatforms:
+        items:
+          type: string
+        type: array
+      traces:
+        $ref: '#/definitions/model.ResourceTypeOutput'
+      version:
+        type: string
+    type: object
+  model.Source:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/model.Metadata'
+      spec:
+        $ref: '#/definitions/model.ParameterizedSpec'
+        description: Spec TODO(doc)
+    type: object
+  model.SourceResponse:
+    properties:
+      source:
+        $ref: '#/definitions/model.Source'
+    type: object
+  model.SourceType:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/model.Metadata'
+      spec:
+        $ref: '#/definitions/model.ResourceTypeSpec'
+    type: object
+  model.SourceTypeResponse:
+    properties:
+      sourceType:
+        $ref: '#/definitions/model.SourceType'
+    type: object
+  model.SourceTypesResponse:
+    properties:
+      sourceTypes:
+        items:
+          $ref: '#/definitions/model.SourceType'
+        type: array
+    type: object
+  model.SourcesResponse:
+    properties:
+      sources:
+        items:
+          $ref: '#/definitions/model.Source'
+        type: array
+    type: object
+  rest.ErrorResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+    type: object
+info:
+  contact: {}
+paths:
+  /agent-versions/{version}/install-command:
+    get:
+      description: Get the proper install command for the provided parameters.
+      parameters:
+      - description: 2.1.1
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: uuid
+        in: query
+        name: secret-key
+        type: string
+      - description: http%3A%2F%2Flocalhost%3A3001
+        in: query
+        name: remote-url
+        type: string
+      - description: windows-amd64
+        in: query
+        name: platform
+        type: string
+      - description: env=stage,app=bindplane
+        in: query
+        name: labels
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.InstallCommandResponse'
+      summary: Get Install Command
+  /agents:
+    delete:
+      parameters:
+      - description: list of agent ids to delete
+        in: body
+        name: id
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DeleteAgentsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: delete agents by ids
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AgentsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: List agents
+  /agents/{id}:
+    get:
+      parameters:
+      - description: the id of the agent
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AgentResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get agent by id
+  /agents/{id}/configuration:
+    get:
+      parameters:
+      - description: the id of the agent
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ConfigurationResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get configuration for a given agent
+  /agents/{id}/labels:
+    get:
+      parameters:
+      - description: the id of the agent
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AgentLabelsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get agent labels by agent id
+    patch:
+      parameters:
+      - description: the id of the agent
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: if true, overwrite any existing labels with the same names
+        in: query
+        name: overwrite
+        type: string
+      - description: Labels to be merged with existing labels, empty values will delete
+          existing labels
+        in: body
+        name: labels
+        required: true
+        schema:
+          $ref: '#/definitions/model.AgentLabelsPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AgentLabelsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Patch agent labels by agent id
+  /agents/{id}/restart:
+    put:
+      parameters:
+      - description: the id of the agent
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: TODO restart agent
+  /agents/{id}/version:
+    post:
+      parameters:
+      - description: the id of the agent
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: TODO update agent
+  /agents/labels:
+    patch:
+      parameters:
+      - description: agent IDs
+        in: body
+        name: ids
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      - description: labels to apply
+        in: body
+        name: labels
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      - description: overwrite labels
+        in: body
+        name: labels
+        schema:
+          type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.BulkAgentLabelsResponse'
+      summary: Bulk apply labels to agents
+  /apply:
+    post:
+      description: |-
+        The /apply route will try to parse resources
+        and upsert them into the store.  Additionally
+        it will send reconfigure tasks to affected agents.
+      parameters:
+      - description: Resources
+        in: body
+        name: resources
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/model.AnyResource'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ApplyResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Create, edit, and configure multiple resources.
+  /configurations:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ConfigurationsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: List Configurations
+  /configurations/{name}:
+    delete:
+      parameters:
+      - description: the name of the configuration to delete
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successful Delete, no content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Delete configuration by name
+    get:
+      parameters:
+      - description: the name of the configuration
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ConfigurationResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get configuration by name
+  /delete:
+    post:
+      description: |-
+        /delete endpoint will try to parse resources
+        and delete them from the store.  Additionally
+        it will send reconfigure tasks to affected agents.
+      parameters:
+      - description: Resources
+        in: body
+        name: resources
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/model.AnyResource'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DeleteResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Delete multiple resources
+  /destination-types:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DestinationTypesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: List destination types
+  /destination-types/{name}:
+    delete:
+      parameters:
+      - description: the name of the destination type to delete
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successful Delete, no content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Delete destination type by name
+    get:
+      parameters:
+      - description: the name of the destination type
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DestinationTypeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get destination type by name
+  /destinations:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DestinationsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: List destinations
+  /destinations/{name}:
+    delete:
+      parameters:
+      - description: the name of the destination to delete
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successful Delete, no content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Delete destination by name
+    get:
+      parameters:
+      - description: the name of the destination
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DestinationResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get destination by name
+  /downloads/{agent}/{version}/{platform}/{type}/{file}:
+    get:
+      description: Get the agent download with the specified parameters
+      parameters:
+      - description: observiq-agent
+        in: path
+        name: agent
+        required: true
+        type: string
+      - description: 2.1.1
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: darwin-arm64
+        in: path
+        name: platform
+        required: true
+        type: string
+      - description: installer
+        in: path
+        name: type
+        required: true
+        type: string
+      - description: observiq-agent-installer.sh
+        in: path
+        name: file
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get Agent Download
+  /source-types:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SourceTypesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: List source types
+  /source-types/{name}:
+    delete:
+      parameters:
+      - description: the name of the source type to delete
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successful Delete, no content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Delete source type by name
+    get:
+      parameters:
+      - description: the name of the source type
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SourceTypeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get source type by name
+  /sources:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SourcesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: List sources
+  /sources/{name}:
+    delete:
+      parameters:
+      - description: the name of the source to delete
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successful Delete, no content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Delete source by name
+    get:
+      parameters:
+      - description: the name of the source
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SourceResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get source by name
+  /version:
+    get:
+      description: Returns the current bindplane version of the server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Server version
+swagger: "2.0"

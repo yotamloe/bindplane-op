@@ -1,0 +1,74 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Configuration
+metadata:
+  name: macos
+  labels:
+    platform: macos
+    app: cabin
+spec:
+  contentType: text/yaml
+  raw: >
+    # example configuration that collects macos system logs and /tmp/file.log
+    receivers:
+        stanza:
+            pipeline:
+                - endpoint: https://nozzle.bindplane.bluemedora.com
+                  id: cabin-output
+                  name: bindplane-development
+                  secret_key: e3655ee8-32c4-4750-a8f9-7bcaaa3a50ce
+                  type: cabin_output
+
+                - enable_install_log: true
+                  enable_system_log: true
+                  id: macos-system
+                  name: macOS
+                  output:
+                    - cabin-output
+                  start_at: end
+                  type: macos
+
+                  # generate /tmp/file.log with something like:
+                  #    i=0; rm -f /tmp/file.log; while true; do
+                  #     i=$(( i + 1 ))
+                  #     echo "{ \"date\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\", \"message\": \"hello $i\" }" >> /tmp/file.log
+                  #     sleep 1
+                  #    done
+
+                - file_log_path:
+                    - /tmp/file.log
+                  id: tmp-file-log
+                  multiline_line_start_pattern: ""
+                  name: tmpfile
+                  output:
+                    - cabin-output
+                  start_at: end
+                  type: json
+            plugin_dir: ""
+    processors:
+        batch:
+            send_batch_max_size: 250
+            send_batch_size: 250
+    exporters:
+        observiq:
+            agent_id: 18f1dd77-08aa-40e8-94d2-3a159400cdde
+            agent_name: arm.localdomain
+            secret_key: 2bf2bd97-e1d0-41de-ae75-e8f8759b6024
+            endpoint: https://nozzle.app.observiq.com/v1/add
+            timeout: 10s
+    extensions:
+        file_storage:
+            directory: /Users/andy/observiq-agent/storage
+    service:
+        extensions:
+            - file_storage
+        pipelines:
+            logs:
+                receivers:
+                    - stanza
+                processors:
+                    - batch
+                exporters:
+                    - observiq
+  selector:
+    matchLabels:
+      "configuration": macos

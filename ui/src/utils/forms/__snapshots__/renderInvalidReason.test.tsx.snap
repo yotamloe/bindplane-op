@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renderInvalidReason matches snapshot 1`] = `
+<div
+  className="MuiBox-root css-164r41r"
+>
+  <p
+    className="MuiTypography-root MuiTypography-body1 css-1sxhpes-MuiTypography-root"
+  >
+    1 error occurred:
+  </p>
+  <p
+    className="MuiTypography-root MuiTypography-body1 css-1sxhpes-MuiTypography-root"
+  >
+    * unable to parse spec.raw as yaml: yaml: line 9: could not find expected ':'
+  </p>
+</div>
+`;

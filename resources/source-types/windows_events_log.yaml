@@ -1,0 +1,96 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: windowsevents
+  displayName: Windows Events
+  icon: /icons/sources/windows_event.svg
+  description: Windows Events (logs)
+spec:
+  version: 0.0.1
+  supported_platforms:
+    - windows
+  parameters:
+    - name: system_event_input
+      label: System Events
+      description: Enable the System event channel.
+      type: bool
+      default: true
+
+    - name: app_event_input
+      label: Application Events
+      description: Enable the Application event channel.
+      type: bool
+      default: true
+
+    - name: security_event_input
+      label: Security Events
+      description: Enable the Security event channel.
+      type: bool
+      default: true
+
+    - name: custom_channels
+      label: Custom Channels
+      description: Custom channels to read events from.
+      type: strings
+      default: []
+      advancedConfig: true
+
+    # TODO(jsirianni): start_at will not work for custom channels,
+    # so it is disabled until we sort it out.
+    # - name: start_at
+    #   label: Start At
+    #   description: Start reading journal from 'beginning' or 'end'.
+    #   type: enum
+    #   validValues:
+    #     - beginning
+    #     - end
+    #   default: end
+    #   advancedConfig: true
+
+  logs:
+    receivers: |
+      {{ if .system_event_input }}
+      - windowseventlog/system:
+          channel: system
+          max_reads: 100
+          poll_interval: 1s
+          labels:
+            log_type: "windows_event.system"
+          start_at: end
+      {{ end }}
+
+      {{ if .app_event_input }}
+      - windowseventlog/application:
+          channel: application
+          max_reads: 100
+          poll_interval: 1s
+          labels:
+            log_type: "windows_event.application"
+          start_at: end
+      {{ end }}
+
+      {{ if .security_event_input }}
+      - windowseventlog/security:
+          channel: security
+          max_reads: 100
+          poll_interval: 1s
+          labels:
+            log_type: "windows_event.security"
+          start_at: end
+      {{ end }}
+
+      {{ range $index, $chan := .custom_channels }}
+      - windowseventlog/custom/{{ $index }}:
+          channel: {{ $chan }}
+          max_reads: 100
+          poll_interval: 1s
+          labels:
+            log_type: "windows_event.custom"
+          start_at: end
+      {{ end }}
+
+    processors: |
+      - resourcedetection:
+          detectors: ["system"]
+          system:
+            hostname_sources: ["os"]

@@ -1,0 +1,456 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+# Prevent multiple runs on the same branch. This is important for webhooks
+# that must be run in order.
+concurrency:
+  group: ${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  # Cache all Go and Node tools, dependencies, etc.
+  # The cached artifacts will be used by all dependant jobs.
+  setup-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v2.1.4
+        with:
+          go-version: 1.18
+      - name: Setup Go Environment
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Cache Go
+        id: module-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/pkg/mod
+          key: go-pkg-mod-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
+      - name: Install dependencies
+        if: steps.module-cache.outputs.cache-hit != 'true'
+        run: make gomoddownload
+      - name: Cache Tools
+        id: tool-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/bin
+          key: tooling-${{ runner.os }}-${{ hashFiles('./internal/tools/go.mod') }}
+      - name: Install Tools
+        if: steps.tool-cache.outputs.cache-hit != 'true'
+        run: make install-tools
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Cache NPM
+        id: npm-cache
+        uses: actions/cache@v3
+        with:
+          path: ui/node_modules
+          key: npm-cache-${{ hashFiles('ui/package-lock.json') }}
+          restore-keys: npm-cache-
+      - name: Install NPM Packages
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: make install-ui
+
+  # Run go vet against Go code.
+  vet:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - setup-environment
+    strategy:
+      matrix:
+        goos:
+          - darwin
+          - linux
+          - windows
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Setup Go Environment
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Cache Go
+        id: module-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/pkg/mod
+          key: go-pkg-mod-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
+      - name: Prep UI Dir
+        run: make prep
+      - name: Vet
+        run: GOOS=${{ matrix.goos }} go vet ./...
+
+  # Run gosec against Go code.
+  secure:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - setup-environment
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Setup Go Environment
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Cache Tools
+        id: tool-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/bin
+          key: tooling-${{ runner.os }}-${{ hashFiles('./internal/tools/go.mod') }}
+      - name: Gosec
+        run: make secure
+
+  # Check license headers in source files.
+  check-license:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - setup-environment
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Setup Go Environment
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Cache Tools
+        id: tool-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/bin
+          key: tooling-${{ runner.os }}-${{ hashFiles('./internal/tools/go.mod') }}
+      - name: Check License Headers
+        run: make check-license
+
+  # Lint Go and Node.
+  lint:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - setup-environment
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Setup Go Environment
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Cache Tools
+        id: tool-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/bin
+          key: tooling-${{ runner.os }}-${{ hashFiles('./internal/tools/go.mod') }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Cache NPM
+        uses: actions/cache@v3
+        with:
+          path: ui/node_modules
+          key: npm-cache-${{ hashFiles('ui/package-lock.json') }}
+          restore-keys: npm-cache-
+      - name: Lint
+        run: make lint
+
+  # Run ui tests.
+  ui-test:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - setup-environment
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Cache NPM
+        uses: actions/cache@v3
+        with:
+          path: ui/node_modules
+          key: npm-cache-${{ hashFiles('ui/package-lock.json') }}
+          restore-keys: npm-cache-
+      - run: make ci
+      - run: make ui-test
+
+  # Run Go tests
+  go-test:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - setup-environment
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Setup Go Environment
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Cache Go
+        id: module-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/pkg/mod
+          key: go-pkg-mod-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
+      - run: make test
+
+  # Run Goreleaser to build binaries, packages, and container images.
+  build:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - setup-environment
+      - check-license
+      - go-test
+      - lint
+      - secure
+      - ui-test
+      - vet
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Setup Go Environment
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Cache Go
+        id: module-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/pkg/mod
+          key: go-pkg-mod-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
+      - name: Cache Tools
+        id: tool-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/bin
+          key: tooling-${{ runner.os }}-${{ hashFiles('./internal/tools/go.mod') }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Cache NPM
+        uses: actions/cache@v3
+        with:
+          path: ui/node_modules
+          key: npm-cache-${{ hashFiles('ui/package-lock.json') }}
+          restore-keys: npm-cache-
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      # Cache Goreleaser's container image output to be used
+      # by other jobs that depend on this job.
+      - name: Set Image Tag
+        run: echo "GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Cache Container Image
+        uses: observiq/action-docker-layer-caching@main
+        with:
+          filter: reference=observiq/bindplane-*:${{ env.GITHUB_SHA_SHORT }}
+      - name: Test GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: v1.9.0
+          args: release --skip-publish --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
+      - name: Upload Server Deb Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: package-server-deb-${{ env.GITHUB_SHA }}
+          path: dist/bindplane_*_linux_amd64.deb
+          retention-days: 1
+      - name: Upload Client Deb Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: package-client-deb-${{ env.GITHUB_SHA }}
+          path: dist/bindplanectl_*_linux_amd64.deb
+          retention-days: 1
+      - name: Upload Binary Builds
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ env.GITHUB_SHA }}
+          path: dist/bindplane_**/*
+          retention-days: 1
+
+  # Scan Go binaries for incomptable licenses.
+  scan-go-licenses:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - build
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Setup Go Environment
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Cache Tools
+        id: tool-cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/go/bin
+          key: tooling-${{ runner.os }}-${{ hashFiles('./internal/tools/go.mod') }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-${{ env.GITHUB_SHA }}
+          path: dist/
+      - name: Scan Binaries
+        run: |
+          find dist -type f -name bindplane | xargs -I{} chmod +x {}
+          lichen --config=./license.yaml $(find dist -type f -name bindplane | xargs)
+
+  # Install Goreleaser bindplanecli package.
+  test-client-package-deb:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - scan-go-licenses
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: package-client-deb-${{ env.GITHUB_SHA }}
+      - name: Install Deb Client Package
+        run: 'sudo apt-get install -y -f ./bindplanectl_*_linux_amd64.deb'
+      - name: Remove Deb Client Package
+        run: sudo apt-get remove -y bindplanectl
+
+  # Install and test Goreleaser bindplane package.
+  test-server-package-deb:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - scan-go-licenses
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Install Cinc (Inspec)
+        run: |
+          curl -L https://omnitruck.cinc.sh/install.sh | \
+          sudo bash -s -- -P cinc-auditor -v 4
+      - uses: actions/download-artifact@v3
+        with:
+          name: package-server-deb-${{ env.GITHUB_SHA }}
+      - name: Install Deb Server Package
+        run: 'sudo apt-get install -y -f ./bindplane_*_linux_amd64.deb'
+      - name: Run Cinc Tests (Server Package)
+        run: sudo cinc-auditor exec test/inspec/package/package.rb
+      - name: Remove Deb Server Package
+        run: sudo apt-get remove -y bindplane
+
+  # Test the container image built by Goreleaser.
+  test-container-image:
+    runs-on: "ubuntu-20.04"
+    needs:
+      - scan-go-licenses
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-${{ env.GITHUB_SHA }}
+          path: dist/
+      - name: Set Image Tag
+        run: echo "GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Cache Container Image
+        uses: observiq/action-docker-layer-caching@main
+        with:
+          skip-save: true
+          filter: reference=observiq/bindplane-amd64:${{ env.GITHUB_SHA_SHORT }}
+      - run: chmod +x dist/bindplane_linux_amd64_v1/bindplane
+      - name: Install Cinc (Inspec)
+        run: |
+          curl -L https://omnitruck.cinc.sh/install.sh | \
+          sudo bash -s -- -P cinc-auditor -v 4
+      - name: Run Cinc Tests (Container Image)
+        run: make inspec-continer-image
+
+  # Push container images built by Goreleaser after
+  # tests pass.
+  push-container-image:
+    if: github.ref == 'refs/heads/main'
+    runs-on: "ubuntu-20.04"
+    needs:
+      - test-container-image
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Set Image Tag
+        run: echo "GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Cache Container Image
+        uses: observiq/action-docker-layer-caching@main
+        with:
+          skip-save: true
+          filter: reference=observiq/bindplane-*:${{ env.GITHUB_SHA_SHORT }}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push Container Images
+        run: |
+          commit_tag=$(git rev-parse --short HEAD)
+          docker push observiq/bindplane-amd64:${commit_tag}
+          docker push observiq/bindplane-arm64:${commit_tag}
+          docker manifest create "observiq/bindplane:${commit_tag}" \
+                  "observiq/bindplane-amd64:${commit_tag}" \
+                  "observiq/bindplane-arm64:${commit_tag}"
+          docker manifest push "observiq/bindplane:${commit_tag}"
+
+  notify-new-image:
+    if: github.ref == 'refs/heads/main'
+    runs-on: "ubuntu-20.04"
+    needs:
+      - push-container-image
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: New Tag Notification
+        run: |
+          commit_tag=$(git rev-parse --short HEAD)
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            --data "{\"event_type\": \"new_tag\", \"client_payload\": { \"image\": \"observiq/bindplane:${commit_tag}\"}}" \
+            "https://api.github.com/repos/observiq/${DEPLOY_REPO_NAME}/dispatches"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
+          DEPLOY_REPO_NAME: ${{ secrets.DEPLOY_REPO_NAME }}

@@ -1,0 +1,10 @@
+host: "192.168.64.1"
+port: "5000"
+serverURL: "https://remote-address.com"
+username: admin
+password: admin
+tlsCert: tls/bindplane.crt
+tlsKey: tls/bindplane.key
+tlsCa:
+  - tls/bindplane-authority
+  - tls/bindplane-authority2

@@ -1,0 +1,16 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Configuration
+metadata:
+  name: postgresql
+spec:
+  contentType: text/yaml
+  sources:
+  - type: postgresql
+    parameters:
+      - name: enable_metrics
+        value: false
+  destinations:
+  - type: googlecloud
+  selector:
+    matchLabels:
+      "configuration": postgresql

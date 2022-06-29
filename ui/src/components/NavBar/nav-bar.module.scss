@@ -1,0 +1,96 @@
+@use "../../styles/colors";
+@use "../../styles/typography";
+
+$bg-color-transition: background-color 0.2s ease;
+
+.app-bar-root {
+  background: linear-gradient(
+    90deg,
+    colors.$summer-sky 0%,
+    colors.$medium-aquamarine 100%
+  );
+
+  box-shadow: 0 2px 2px -1px rgba(152, 162, 179, 0.3),
+    0 1px 5px -2px rgba(152, 162, 179, 0.3);
+
+  border: none;
+}
+
+.toolbar {
+  min-height: unset !important;
+  height: 50px;
+}
+
+.nav-link {
+  color: colors.$revolver;
+  text-decoration: none;
+
+  display: flex;
+  align-items: center;
+  padding: 25px 16px;
+  line-height: 18px;
+
+  font-weight: typography.$font-weight-light;
+  font-size: 14px;
+
+  text-transform: uppercase;
+  letter-spacing: 2.4px;
+  white-space: nowrap;
+
+  transition: $bg-color-transition;
+
+  .icon {
+    margin-right: 12px;
+    box-sizing: content-box;
+    display: inline-block;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: #2f2f31;
+    stroke: #2f2f31;
+  }
+
+  &:hover {
+    text-decoration: none;
+    background-color: rgba(colors.$white, 0.25);
+  }
+
+  &.active,
+  &.active:hover {
+    background-color: rgba(colors.$white, 0.6);
+
+    color: colors.$revolver;
+  }
+}
+
+.main-nav {
+  margin: 0 24px;
+  display: flex;
+}
+
+.sub-nav {
+  margin: 0 0 0 auto;
+  display: inline-flex;
+  flex-wrap: nowrap;
+
+  .button {
+    margin: auto 5px;
+  }
+
+  .icon {
+    box-sizing: content-box;
+    display: inline-block;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: #2f2f31;
+    stroke: #2f2f31;
+  }
+}
+
+.logout-modal-paper {
+  padding: 2rem;
+}
+
+.logo {
+  width: 150px;
+  margin-bottom: -8px;
+}

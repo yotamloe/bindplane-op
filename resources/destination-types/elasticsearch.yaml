@@ -1,0 +1,135 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  name: elasticsearch
+  displayName: Elasticsearch
+  icon: /icons/destinations/elasticsearch.svg
+spec:
+  parameters:
+    - name: endpoints
+      label: Endpoints
+      description: List of Elasticsearch URLs. If endpoints and cloudid is missing, the ELASTICSEARCH_URL environment variable will be used.
+      type: strings
+      default: []
+
+    - name: cloudid
+      label: CloudID
+      description:  ID of the Elastic Cloud Cluster to publish events to. The cloudid can be used instead of endpoints.
+      type: string
+      default: ""
+      advancedConfig: true
+
+    - name: index
+      label: Index
+      description: The index or datastream name to publish events to.
+      type: string
+      default: "logs-generic-default"
+
+    - name: pipeline
+      label: Pipeline
+      description: Optional Ingest Node pipeline ID used for processing documents published by the exporter.
+      type: string
+      default: ""
+      advancedConfig: true
+
+    - name: user
+      label: Username
+      description: Username used for HTTP Basic Authentication.
+      type: string
+      default: ""
+      advancedConfig: true
+
+    - name: password
+      label: Password
+      description: Password used for HTTP Basic Authentication.
+      type: string
+      default: ""
+      advancedConfig: true
+
+    - name: api_key
+      label: API Key
+      description: Authorization API Key.
+      type: string
+      default: ""
+      advancedConfig: true
+
+    - name: enable_tls
+      label: Enable TLS
+      description: Whether or not to use TLS.
+      type: bool
+      default: false
+      advancedConfig: true
+
+    - name: insecure_skip_verify
+      label: Skip TLS Certificate Verification
+      description: Enable to skip TLS certificate verification.
+      type: bool
+      default: false
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: ca_file
+      label: TLS Certificate Authority File
+      description: Certificate authority used to validate TLS certificates.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: cert_file
+      label: Mutual TLS Client Certificate File
+      description: A TLS certificate used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+    - name: key_file
+      label: Mutual TLS Client Private Key File
+      description: A TLS private key used for client authentication, if mutual TLS is enabled.
+      type: string
+      required: false
+      default: ""
+      relevantIf:
+        - name: enable_tls
+          operator: equals
+          value: true
+      advancedConfig: true
+
+  logs:
+    exporters: |
+      - elasticsearch:
+          endpoints:
+            {{ range $endpoint := .endpoints }}
+            - '{{ $endpoint }}'
+            {{end}}
+          cloudid: {{ .cloudid }}
+          index: {{ .index }}
+          pipeline: {{ .pipeline }}
+          user: {{ .user }}
+          password: {{ .password }}
+          api_key: {{ .api_key }}
+          tls:
+          {{ if .enable_tls }}
+            insecure: false
+            insecure_skip_verify: {{ .insecure_skip_verify }}
+            ca_file: "{{ .ca_file }}"
+            cert_file: "{{ .cert_file }}"
+            key_file: "{{ .key_file }}"
+          {{ else }}
+            insecure: true
+          {{ end }}
+    processors: |
+      - batch:
+

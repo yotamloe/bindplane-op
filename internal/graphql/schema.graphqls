@@ -1,0 +1,271 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+# These ship with gqlgen https://gqlgen.com/reference/scalars/
+scalar Time
+scalar Map
+scalar Any
+
+# ----------------------------------------------------------------------
+# agent model
+
+type Agent {
+  id: ID!
+  architecture: String
+  hostName: String
+  labels: Map
+  platform: String
+  operatingSystem: String
+  version: String
+
+  name: String!
+  home: String
+  macAddress: String
+  remoteAddress: String
+
+  type: String
+
+  status: Int!
+  errorMessage: String
+
+  connectedAt: Time
+  disconnectedAt: Time
+
+  configuration: AgentConfiguration
+
+  # resource of the configuration in use by this agent
+  configurationResource: Configuration
+}
+
+type AgentConfiguration {
+  Collector: String
+  Logging: String
+  Manager: Map
+}
+
+# ----------------------------------------------------------------------
+# shared resource models
+
+type Metadata {
+  id: ID!
+  name: String!
+  displayName: String
+  description: String
+  icon: String
+  labels: Map
+}
+
+type AgentSelector {
+  matchLabels: Map
+}
+
+# ----------------------------------------------------------------------
+# configuration model
+
+type Configuration {
+  apiVersion: String!
+  kind: String!
+  metadata: Metadata!
+  spec: ConfigurationSpec!
+}
+
+type ConfigurationSpec {
+  contentType: String
+  raw: String
+  sources: [ResourceConfiguration!]
+  destinations: [ResourceConfiguration!]
+  selector: AgentSelector
+}
+
+type ResourceConfiguration {
+  name: String
+  type: String
+  parameters: [Parameter!]
+}
+
+type Parameter {
+  name: String!
+  value: Any!
+}
+
+# ----------------------------------------------------------------------
+# configurations query result
+
+type Configurations {
+  query: String
+  configurations: [Configuration!]!
+  suggestions: [Suggestion!]
+}
+
+# ----------------------------------------------------------------------
+# agents query result
+
+type Agents {
+  query: String
+  agents: [Agent!]!
+  suggestions: [Suggestion!]
+}
+
+type Suggestion {
+  label: String!
+  query: String!
+}
+
+# ----------------------------------------------------------------------
+# agentChanges subscription result
+
+enum AgentChangeType {
+  INSERT
+  UPDATE
+  REMOVE
+}
+
+type AgentChange {
+  agent: Agent!
+  changeType: AgentChangeType!
+}
+
+# ----------------------------------------------------------------------
+# event subscription result
+
+enum EventType {
+  INSERT
+  UPDATE
+  REMOVE
+}
+
+type ConfigurationChange {
+  configuration: Configuration!
+  eventType: EventType!
+}
+
+# ----------------------------------------------------------------------
+# resource types
+
+type SourceType {
+  apiVersion: String!
+  metadata: Metadata!
+  kind: String!
+  spec: ResourceTypeSpec!
+}
+
+type DestinationType {
+  apiVersion: String!
+  metadata: Metadata!
+  kind: String!
+  spec: ResourceTypeSpec!
+}
+
+type ResourceTypeSpec {
+  version: String!
+
+  parameters: [ParameterDefinition!]! #todo
+  supportedPlatforms: [String!]!
+
+  telemetryTypes: [PipelineType!]!
+}
+
+enum PipelineType {
+  logs
+  metrics
+  traces
+}
+
+enum ParameterType {
+  string
+  strings
+  int
+  bool
+  enum
+}
+
+type ParameterDefinition {
+  name: String!
+  label: String!
+  description: String!
+  required: Boolean!
+
+  type: ParameterType!
+
+  validValues: [String!]
+
+  default: Any
+  relevantIf: [RelevantIfCondition!]
+}
+
+type RelevantIfCondition {
+  name: String!
+  operator: RelevantIfOperatorType!
+  value: Any!
+}
+
+enum RelevantIfOperatorType {
+  equals
+}
+
+# ----------------------------------------------------------------------
+# sources and destinations
+
+type Source {
+  apiVersion: String!
+  kind: String!
+  metadata: Metadata!
+  spec: ParameterizedSpec!
+}
+
+type Destination {
+  apiVersion: String!
+  kind: String!
+  metadata: Metadata!
+  spec: ParameterizedSpec!
+}
+
+type DestinationWithType {
+  destination: Destination
+  destinationType: DestinationType
+}
+
+type ParameterizedSpec {
+  type: String!
+  parameters: [Parameter!]
+}
+
+type Components {
+  sources: [Source!]!
+  destinations: [Destination!]!
+}
+
+# ----------------------------------------------------------------------
+# queries
+
+type Query {
+  agents(selector: String, query: String): Agents!
+  agent(id: ID!): Agent
+
+  configurations(selector: String, query: String): Configurations!
+  configuration(name: String!): Configuration
+
+  sources: [Source!]!
+  source(name: String!): Source
+
+  sourceTypes: [SourceType!]!
+  sourceType(name: String!): SourceType
+
+  destinations: [Destination!]!
+  destination(name: String!): Destination
+  destinationWithType(name: String!): DestinationWithType!
+
+  destinationTypes: [DestinationType!]!
+  destinationType(name: String!): DestinationType
+
+  components: Components!
+}
+
+# ----------------------------------------------------------------------
+# subscriptions
+
+type Subscription {
+  agentChanges(selector: String, query: String): [AgentChange!]!
+  configurationChanges(selector: String, query: String): [ConfigurationChange!]!
+}

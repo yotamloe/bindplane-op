@@ -1,0 +1,1599 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/agent-versions/{version}/install-command": {
+            "get": {
+                "description": "Get the proper install command for the provided parameters.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get Install Command",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "2.1.1",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "uuid",
+                        "name": "secret-key",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "http%3A%2F%2Flocalhost%3A3001",
+                        "name": "remote-url",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "windows-amd64",
+                        "name": "platform",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "env=stage,app=bindplane",
+                        "name": "labels",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.InstallCommandResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List agents",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AgentsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "delete agents by ids",
+                "parameters": [
+                    {
+                        "description": "list of agent ids to delete",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeleteAgentsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/labels": {
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Bulk apply labels to agents",
+                "parameters": [
+                    {
+                        "description": "agent IDs",
+                        "name": "ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "description": "labels to apply",
+                        "name": "labels",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "description": "overwrite labels",
+                        "name": "labels",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.BulkAgentLabelsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get agent by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the id of the agent",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AgentResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/{id}/configuration": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get configuration for a given agent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the id of the agent",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ConfigurationResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/{id}/labels": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get agent labels by agent id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the id of the agent",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AgentLabelsResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Patch agent labels by agent id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the id of the agent",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "if true, overwrite any existing labels with the same names",
+                        "name": "overwrite",
+                        "in": "query"
+                    },
+                    {
+                        "description": "Labels to be merged with existing labels, empty values will delete existing labels",
+                        "name": "labels",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AgentLabelsPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AgentLabelsResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/{id}/restart": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "TODO restart agent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the id of the agent",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/agents/{id}/version": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "TODO update agent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the id of the agent",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/apply": {
+            "post": {
+                "description": "The /apply route will try to parse resources\nand upsert them into the store.  Additionally\nit will send reconfigure tasks to affected agents.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create, edit, and configure multiple resources.",
+                "parameters": [
+                    {
+                        "description": "Resources",
+                        "name": "resources",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.AnyResource"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ApplyResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/configurations": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List Configurations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ConfigurationsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/configurations/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get configuration by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the configuration",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ConfigurationResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete configuration by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the configuration to delete",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Delete, no content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/delete": {
+            "post": {
+                "description": "/delete endpoint will try to parse resources\nand delete them from the store.  Additionally\nit will send reconfigure tasks to affected agents.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete multiple resources",
+                "parameters": [
+                    {
+                        "description": "Resources",
+                        "name": "resources",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.AnyResource"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeleteResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/destination-types": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List destination types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DestinationTypesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/destination-types/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get destination type by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the destination type",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DestinationTypeResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete destination type by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the destination type to delete",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Delete, no content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/destinations": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List destinations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DestinationsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/destinations/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get destination by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the destination",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DestinationResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete destination by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the destination to delete",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Delete, no content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/downloads/{agent}/{version}/{platform}/{type}/{file}": {
+            "get": {
+                "description": "Get the agent download with the specified parameters",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "summary": "Get Agent Download",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "observiq-agent",
+                        "name": "agent",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "2.1.1",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "darwin-arm64",
+                        "name": "platform",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "installer",
+                        "name": "type",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "observiq-agent-installer.sh",
+                        "name": "file",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/source-types": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List source types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SourceTypesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/source-types/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get source type by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the source type",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SourceTypeResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete source type by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the source type to delete",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Delete, no content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sources": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List sources",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SourcesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sources/{name}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get source by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the source",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.SourceResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete source by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the name of the source to delete",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Delete, no content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/version": {
+            "get": {
+                "description": "Returns the current bindplane version of the server.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Server version",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Agent": {
+            "type": "object",
+            "properties": {
+                "arch": {
+                    "type": "string"
+                },
+                "configuration": {
+                    "description": "tracked by BindPlane"
+                },
+                "connectedAt": {
+                    "type": "string"
+                },
+                "disconnectedAt": {
+                    "type": "string"
+                },
+                "errorMessage": {
+                    "type": "string"
+                },
+                "home": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/model.Labels"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "operatingSystem": {
+                    "type": "string"
+                },
+                "platform": {
+                    "type": "string"
+                },
+                "remoteAddress": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "reported by Status messages",
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AgentLabelsPayload": {
+            "type": "object",
+            "properties": {
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "model.AgentLabelsResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "labels": {
+                    "$ref": "#/definitions/model.Labels"
+                }
+            }
+        },
+        "model.AgentResponse": {
+            "type": "object",
+            "properties": {
+                "agent": {
+                    "$ref": "#/definitions/model.Agent"
+                }
+            }
+        },
+        "model.AgentSelector": {
+            "type": "object"
+        },
+        "model.AgentsResponse": {
+            "type": "object",
+            "properties": {
+                "agents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Agent"
+                    }
+                }
+            }
+        },
+        "model.AnyResource": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/model.Metadata"
+                },
+                "spec": {
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        },
+        "model.ApplyResponse": {
+            "type": "object",
+            "properties": {
+                "updates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResourceStatus"
+                    }
+                }
+            }
+        },
+        "model.BulkAgentLabelsResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "model.Configuration": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/model.Metadata"
+                },
+                "spec": {
+                    "description": "Spec TODO(doc)",
+                    "$ref": "#/definitions/model.ConfigurationSpec"
+                }
+            }
+        },
+        "model.ConfigurationResponse": {
+            "type": "object",
+            "properties": {
+                "configuration": {
+                    "$ref": "#/definitions/model.Configuration"
+                },
+                "raw": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ConfigurationSpec": {
+            "type": "object",
+            "properties": {
+                "contentType": {
+                    "type": "string"
+                },
+                "destinations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResourceConfiguration"
+                    }
+                },
+                "raw": {
+                    "type": "string"
+                },
+                "selector": {
+                    "$ref": "#/definitions/model.AgentSelector"
+                },
+                "sources": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResourceConfiguration"
+                    }
+                }
+            }
+        },
+        "model.ConfigurationsResponse": {
+            "type": "object",
+            "properties": {
+                "configurations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Configuration"
+                    }
+                }
+            }
+        },
+        "model.DeleteAgentsResponse": {
+            "type": "object",
+            "properties": {
+                "agents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Agent"
+                    }
+                }
+            }
+        },
+        "model.DeleteResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ResourceStatus"
+                    }
+                }
+            }
+        },
+        "model.Destination": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/model.Metadata"
+                },
+                "spec": {
+                    "description": "Spec TODO(doc)",
+                    "$ref": "#/definitions/model.ParameterizedSpec"
+                }
+            }
+        },
+        "model.DestinationResponse": {
+            "type": "object",
+            "properties": {
+                "destination": {
+                    "$ref": "#/definitions/model.Destination"
+                }
+            }
+        },
+        "model.DestinationType": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/model.Metadata"
+                },
+                "spec": {
+                    "$ref": "#/definitions/model.ResourceTypeSpec"
+                }
+            }
+        },
+        "model.DestinationTypeResponse": {
+            "type": "object",
+            "properties": {
+                "destinationType": {
+                    "$ref": "#/definitions/model.DestinationType"
+                }
+            }
+        },
+        "model.DestinationTypesResponse": {
+            "type": "object",
+            "properties": {
+                "destinationTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.DestinationType"
+                    }
+                }
+            }
+        },
+        "model.DestinationsResponse": {
+            "type": "object",
+            "properties": {
+                "destinations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Destination"
+                    }
+                }
+            }
+        },
+        "model.InstallCommandResponse": {
+            "type": "object",
+            "properties": {
+                "command": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Labels": {
+            "type": "object"
+        },
+        "model.Metadata": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/model.Labels"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Parameter": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "description": "This could be any of the following: string, bool, int, enum (string), float, []string"
+                }
+            }
+        },
+        "model.ParameterDefinition": {
+            "type": "object",
+            "properties": {
+                "advancedConfig": {
+                    "type": "boolean"
+                },
+                "default": {
+                    "description": "Must be valid according to Type \u0026 ValidValues"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hidden": {
+                    "type": "boolean"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "relevantIf": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.RelevantIfCondition"
+                    }
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "description": "\"string\", \"int\", \"bool\", \"strings\", or \"enum\"",
+                    "type": "string"
+                },
+                "validValues": {
+                    "description": "only useable if Type == \"enum\"",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "model.ParameterizedSpec": {
+            "type": "object",
+            "properties": {
+                "parameters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Parameter"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.RelevantIfCondition": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "any"
+                }
+            }
+        },
+        "model.ResourceConfiguration": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Parameter"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResourceStatus": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "description": "Reason will be set if status is invalid or error",
+                    "type": "string"
+                },
+                "resource": {
+                    "description": "Resource TODO(doc)"
+                },
+                "status": {
+                    "description": "Status TODO(doc)",
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResourceTypeOutput": {
+            "type": "object",
+            "properties": {
+                "exporters": {
+                    "type": "string"
+                },
+                "extensions": {
+                    "type": "string"
+                },
+                "processors": {
+                    "type": "string"
+                },
+                "receivers": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResourceTypeSpec": {
+            "type": "object",
+            "properties": {
+                "logs": {
+                    "description": "individual",
+                    "$ref": "#/definitions/model.ResourceTypeOutput"
+                },
+                "logs+metrics": {
+                    "description": "pairs (alphabetical order)",
+                    "$ref": "#/definitions/model.ResourceTypeOutput"
+                },
+                "logs+metrics+traces": {
+                    "description": "all three (alphabetical order)",
+                    "$ref": "#/definitions/model.ResourceTypeOutput"
+                },
+                "logs+traces": {
+                    "$ref": "#/definitions/model.ResourceTypeOutput"
+                },
+                "metrics": {
+                    "$ref": "#/definitions/model.ResourceTypeOutput"
+                },
+                "metrics+traces": {
+                    "$ref": "#/definitions/model.ResourceTypeOutput"
+                },
+                "parameters": {
+                    "description": "Parameters currently uses the model from stanza. Eventually we will probably create a separate definition for\nBindPlane.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ParameterDefinition"
+                    }
+                },
+                "supportedPlatforms": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "traces": {
+                    "$ref": "#/definitions/model.ResourceTypeOutput"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Source": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/model.Metadata"
+                },
+                "spec": {
+                    "description": "Spec TODO(doc)",
+                    "$ref": "#/definitions/model.ParameterizedSpec"
+                }
+            }
+        },
+        "model.SourceResponse": {
+            "type": "object",
+            "properties": {
+                "source": {
+                    "$ref": "#/definitions/model.Source"
+                }
+            }
+        },
+        "model.SourceType": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/model.Metadata"
+                },
+                "spec": {
+                    "$ref": "#/definitions/model.ResourceTypeSpec"
+                }
+            }
+        },
+        "model.SourceTypeResponse": {
+            "type": "object",
+            "properties": {
+                "sourceType": {
+                    "$ref": "#/definitions/model.SourceType"
+                }
+            }
+        },
+        "model.SourceTypesResponse": {
+            "type": "object",
+            "properties": {
+                "sourceTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.SourceType"
+                    }
+                }
+            }
+        },
+        "model.SourcesResponse": {
+            "type": "object",
+            "properties": {
+                "sources": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Source"
+                    }
+                }
+            }
+        },
+        "rest.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

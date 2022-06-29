@@ -1,0 +1,36 @@
+@use '../../../../styles/typography';
+
+.form {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin-bottom: 12px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.upload {
+  margin-left: 1rem;
+}
+
+.upload-box {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.file {
+  margin: 0 1rem;
+  font-family: typography.$font-family-monospace;
+  font-size: 12px;
+}

@@ -1,0 +1,65 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# bbolt test storage file
+test-storage
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+main
+
+*.log
+
+# test coverage reports
+cover.*
+
+build
+dist/
+tls/
+cosign*
+gpg.*
+
+# vs code project settings
+.vscode
+
+# accidental local bindplane config and cache
+.bindplane
+
+**/.kitchen
+**/.vagrant
+
+# BindPlane UI
+!ui/build
+ui/node_modules
+ui/.pnp
+ui/.pnp.js
+
+# testing
+ui/coverage
+
+# production
+ui/build
+
+# misc
+ui/.DS_Store
+ui/.env.local
+ui/.env.development.local
+ui/.env.test.local
+ui/.env.production.local
+
+ui/npm-debug.log*
+
+release-stage
+
+gha-creds-*.json

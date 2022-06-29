@@ -1,0 +1,38 @@
+{
+  "agentVersion": {
+    "version": "2.0.6",
+    "downloads": {
+      "darwin-amd64": {
+        "download": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/darwin-amd64/installer/observiq-agent-installer.tar.gz",
+        "installer": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/darwin-amd64/installer/observiq-agent-installer.sh",
+        "manager": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/darwin-amd64/manager/observiq-agent-manager.tar.gz"
+      },
+      "darwin-arm64": {
+        "download": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/darwin-arm64/installer/observiq-agent-installer.tar.gz",
+        "installer": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/darwin-arm64/installer/observiq-agent-installer.sh",
+        "manager": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/darwin-arm64/manager/observiq-agent-manager.tar.gz"
+      },
+      "linux-amd64": {
+        "download": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-amd64/installer/observiq-agent-installer.tar.gz",
+        "installer": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-amd64/installer/observiq-agent-installer.sh",
+        "manager": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-amd64/manager/observiq-agent-manager.tar.gz"
+      },
+      "linux-arm64": {
+        "download": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-arm64/installer/observiq-agent-installer.tar.gz",
+        "installer": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-arm64/installer/observiq-agent-installer.sh",
+        "manager": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-arm64/manager/observiq-agent-manager.tar.gz"
+      },
+      "linux-arm": {
+        "download": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-arm/installer/observiq-agent-installer.tar.gz",
+        "installer": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-arm/installer/observiq-agent-installer.sh",
+        "manager": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/linux-arm/manager/observiq-agent-manager.tar.gz"
+      },
+      "windows-amd64": {
+        "download": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/windows-amd64/installer/observiq-agent-installer.zip",
+        "installer": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/windows-amd64/installer/observiq-agent-installer.ps1",
+        "manager": "https://storage.googleapis.com/observiq-cloud/observiq-agent/2.0.6/windows-amd64/manager/observiq-agent-manager.zip"
+      }
+    },
+    "public": true
+  }
+}

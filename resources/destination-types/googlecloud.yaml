@@ -1,0 +1,73 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  name: googlecloud
+  displayName: Google Cloud
+  icon: /icons/destinations/google-cloud-logging.svg
+spec:
+  parameters:
+    - name: project
+      label: Project ID
+      description: The Google Cloud Project ID to send logs, metrics, and traces to.
+      type: string
+      default: ""
+      required: true
+
+    - name: auth_type
+      label: Authentication Method
+      description: The method used for authenticating to Google Cloud. 'auto' will attempt to use the collector's environment, useful when running on Google Cloud or when you have set GOOGLE_APPLICATION_CREDENTIALS in the collector's environment. 'json' takes the json contents of a Google Service Account's credentials file. 'file' is the file path to a Google Service Account credential file.
+      type: enum
+      default: "auto"
+      validValues:
+        - "auto"
+        - "json"
+        - "file"
+      required: true
+
+    - name: credentials
+      label: Credentials
+      description: JSON value from a Google Service Account credential file.
+      type: string
+      default: ""
+      relevantIf:
+        - name: auth_type
+          operator: equals
+          value: "json"
+      required: true
+
+    - name: credentials_file
+      label: Credentials File
+      description: Path to a Google Service Account credential file on the collector system. The collector's runtime user must have permission to read this file.
+      type: string
+      default: ""
+      relevantIf:
+        - name: auth_type
+          operator: equals
+          value: "file"
+      required: true
+
+  logs+metrics+traces:
+    exporters: |
+      - googlecloud:
+          project: "{{ .project }}"
+          {{ if eq .auth_type "json" }}
+          credentials: |-
+            {{ .credentials }}
+          {{ else if eq .auth_type "file" }}
+          credentials_file: "{{ .credentials_file }}"
+          {{ end }}
+          metric:
+            resource_filters:
+              - prefix: bigip
+              - prefix: container
+              - prefix: elasticsearch
+              - prefix: hadoop
+              - prefix: mongodb_atlas
+              - prefix: rabbitmq
+              - prefix: tomcat
+              - prefix: jmx
+              - prefix: process
+              - prefix: os
+              - prefix: zk
+              - prefix: server
+              - prefix: solr

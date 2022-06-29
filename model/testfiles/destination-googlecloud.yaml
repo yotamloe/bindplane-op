@@ -1,0 +1,6 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Destination
+metadata:
+  name: googlecloud
+spec:
+  type: googlecloud

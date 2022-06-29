@@ -1,0 +1,24 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Receiver
+metadata:
+  name: production-nginx-ingress
+  labels:
+    app: nginx
+spec:
+  plugin:
+    name: nginx_ingress
+  parameters:
+  - name: log_format
+    value: default
+  - name: cluster_name
+    value: minikube
+  - name: pod_name
+    value: nginx-ingress
+  - name: container_name
+    value: "*"
+  - name: enable_access_log
+    value: true
+  - name: enable_error_log
+    value: true
+  - name: start_at
+    value: end

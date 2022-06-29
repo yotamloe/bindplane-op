@@ -1,0 +1,11 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: Destination
+metadata:
+  name: cabin-production-logs
+spec:
+  type: observiq-cloud
+  parameters:
+    - name: endpoint
+      value: https://nozzle.app.observiq.com
+    - name: secret_key
+      value: 2c088c5e-2afc-483b-be52-e2b657fcff08
