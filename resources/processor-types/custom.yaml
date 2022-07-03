@@ -1,0 +1,15 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: ProcessorType
+metadata:
+  name: custom
+  displayName: Custom
+spec:
+  version: 0.0.1
+  parameters:
+    - name: configuration
+      label: Configuration
+      type: string
+      required: true
+  logs+metrics+traces:
+    processors: |
+      - {{ .configuration }}
