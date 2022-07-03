@@ -24,6 +24,8 @@ type Updates struct {
 	Agents           Events[*model.Agent]
 	Sources          Events[*model.Source]
 	SourceTypes      Events[*model.SourceType]
+	Processors       Events[*model.Processor]
+	ProcessorTypes   Events[*model.ProcessorType]
 	Destinations     Events[*model.Destination]
 	DestinationTypes Events[*model.DestinationType]
 	Configurations   Events[*model.Configuration]
@@ -35,6 +37,8 @@ func NewUpdates() *Updates {
 		Agents:           NewEvents[*model.Agent](),
 		Sources:          NewEvents[*model.Source](),
 		SourceTypes:      NewEvents[*model.SourceType](),
+		Processors:       NewEvents[*model.Processor](),
+		ProcessorTypes:   NewEvents[*model.ProcessorType](),
 		Destinations:     NewEvents[*model.Destination](),
 		DestinationTypes: NewEvents[*model.DestinationType](),
 		Configurations:   NewEvents[*model.Configuration](),
@@ -55,6 +59,10 @@ func (updates *Updates) IncludeResource(r model.Resource, eventType EventType) {
 		updates.Sources.Include(r, eventType)
 	case *model.SourceType:
 		updates.SourceTypes.Include(r, eventType)
+	case *model.Processor:
+		updates.Processors.Include(r, eventType)
+	case *model.ProcessorType:
+		updates.ProcessorTypes.Include(r, eventType)
 	case *model.Destination:
 		updates.Destinations.Include(r, eventType)
 	case *model.DestinationType:
@@ -74,6 +82,8 @@ func (updates *Updates) Size() int {
 	return len(updates.Agents) +
 		len(updates.Sources) +
 		len(updates.SourceTypes) +
+		len(updates.Processors) +
+		len(updates.ProcessorTypes) +
 		len(updates.Destinations) +
 		len(updates.DestinationTypes) +
 		len(updates.Configurations)
@@ -88,13 +98,20 @@ func (updates *Updates) Size() int {
 // pub/sub individual event => pub/sub include dependencies => subscribers
 func (updates *Updates) addTransitiveUpdates(s Store) error {
 	// for sourceTypes, add sources
+	// for processorTypes, add sources and processors
 	// for destinationTypes, add destinations
 	// for sources and sourceTypes, add configurations
+	// for processors and processorTypes, add configurations
 	// for destinations and destinationTypes, add configurations
 
 	var errs error
 
-	err := updates.addSourceUpdates(s)
+	err := updates.addProcessorUpdates(s)
+	if err != nil {
+		errs = multierror.Append(errs, err)
+	}
+
+	err = updates.addSourceUpdates(s)
 	if err != nil {
 		errs = multierror.Append(errs, err)
 	}
@@ -135,6 +152,17 @@ func (updates *Updates) addSourceUpdates(s Store) error {
 			}
 		}
 	}
+
+	return nil
+}
+
+func (updates *Updates) addProcessorUpdates(s Store) error {
+	if updates.ProcessorTypes.Empty() {
+		return nil
+	}
+
+	// TODO(andy): add processors based on modified processor-types
+	// TODO(andy): add sources based on modified processor-types
 
 	return nil
 }

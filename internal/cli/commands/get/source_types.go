@@ -37,25 +37,25 @@ func SourceTypesCommand(bindplane *cli.BindPlane) *cobra.Command {
 
 			if len(args) > 0 {
 				name := args[0]
-				sourcetype, err := c.SourceType(cmd.Context(), name)
+				sourceType, err := c.SourceType(cmd.Context(), name)
 				if err != nil {
 					return err
 				}
 
-				if sourcetype == nil {
-					return fmt.Errorf("no sourcetype found with name %s", name)
+				if sourceType == nil {
+					return fmt.Errorf("no source-type found with name %s", name)
 				}
 
-				printer.PrintResource(bindplane.Printer(), sourcetype)
+				printer.PrintResource(bindplane.Printer(), sourceType)
 				return nil
 			}
 
-			sourcetypes, err := c.SourceTypes(cmd.Context())
+			sourceTypes, err := c.SourceTypes(cmd.Context())
 			if err != nil {
 				return err
 			}
 
-			printer.PrintResources(bindplane.Printer(), sourcetypes)
+			printer.PrintResources(bindplane.Printer(), sourceTypes)
 			return nil
 		},
 	}
