@@ -28,7 +28,7 @@ func ProcessorTypesCommand(bindplane *cli.BindPlane) *cobra.Command {
 		Use:     "processor-types [id]",
 		Aliases: []string{"processor-type"},
 		Short:   "Displays the processor types",
-		Long:    `A processor type is a type of service that receives logs, metrics, and traces.`,
+		Long:    `A processor type is a type of service that transforms logs, metrics, and traces.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := bindplane.Client()
 			if err != nil {

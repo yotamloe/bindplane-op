@@ -28,7 +28,7 @@ func ProcessorsCommand(bindplane *cli.BindPlane) *cobra.Command {
 		Use:     "processors [id]",
 		Aliases: []string{"processor"},
 		Short:   "Displays the processors",
-		Long:    `A processor is a service that receives logs, metrics, and traces.`,
+		Long:    `A processor transforms logs, metrics, and traces.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := bindplane.Client()
 			if err != nil {
