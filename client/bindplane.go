@@ -165,8 +165,6 @@ type BindPlane interface {
 	AgentInstallCommand(ctx context.Context, options AgentInstallOptions) (string, error)
 	// AgentUpdate TODO(doc)
 	AgentUpdate(ctx context.Context, id string, version string) error
-	// AgentRestart TODO(doc)
-	AgentRestart(ctx context.Context, id string) error
 
 	// AgentLabels gets the labels for an agent
 	AgentLabels(ctx context.Context, id string) (*model.Labels, error)
@@ -433,10 +431,6 @@ func (c *bindplaneClient) Delete(ctx context.Context, resources []*model.AnyReso
 	}
 
 	dr := &model.DeleteResponseClientSide{}
-	err = json.Unmarshal(resp.Body(), dr)
-	if err != nil {
-		return nil, err
-	}
 
 	switch resp.StatusCode() {
 	case http.StatusAccepted:
@@ -447,10 +441,14 @@ func (c *bindplaneClient) Delete(ctx context.Context, resources []*model.AnyReso
 		if dr.Errors != nil {
 			return nil, errors.New(dr.Errors[0])
 		}
-
 		return nil, errors.New("bad request")
 	case http.StatusInternalServerError:
 		return nil, fmt.Errorf("%s", dr.Errors[0])
+	}
+
+	err = json.Unmarshal(resp.Body(), dr)
+	if err != nil {
+		return nil, err
 	}
 
 	return nil, fmt.Errorf("unknown response from bindplane server")
@@ -490,13 +488,6 @@ func (c *bindplaneClient) AgentUpdate(ctx context.Context, id string, version st
 	_, err := c.client.R().SetBody(model.PostAgentVersionRequest{
 		Version: version,
 	}).Post(endpoint)
-	return err
-}
-
-// AgentRestart TODO(doc)
-func (c *bindplaneClient) AgentRestart(ctx context.Context, id string) error {
-	endpoint := fmt.Sprintf("/agents/%s/restart", id)
-	_, err := c.client.R().Put(endpoint)
 	return err
 }
 
