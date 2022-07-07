@@ -136,7 +136,7 @@ func SubscribeWithFilter[T, R any](bus Source[T], filter SubscriptionFilter[T, R
 }
 
 // SubscribeWithFilterUntilDone TODO
-func SubscribeWithFilterUntilDone[T, R any](ctx context.Context, source Source[T], filter SubscriptionFilter[T, R]) (<-chan R, UnsubscribeFunc) {
+func SubscribeWithFilterUntilDone[T, R any](ctx context.Context, source Source[T], filter SubscriptionFilter[T, R]) (chan R, UnsubscribeFunc) {
 	subscription := newFilterSubscription(filter)
 	unsubscribe := source.SubscribeUntilDone(ctx, &subscription)
 	return subscription.channel, unsubscribe

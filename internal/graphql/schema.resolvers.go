@@ -236,7 +236,8 @@ func (r *sourceTypeResolver) Kind(ctx context.Context, obj *model.SourceType) (s
 	return string(obj.GetKind()), nil
 }
 
-func (r *subscriptionResolver) AgentChanges(ctx context.Context, selector *string, query *string) (<-chan []*model1.AgentChange, error) {
+func (r *subscriptionResolver) AgentChanges(ctx context.Context, selector *string, query *string, offset int) (<-chan []*model1.AgentChange, error) {
+	r.bindplane.Logger().Info("AgentChanges", zap.Any("selector", selector))
 	parsedSelector, parsedQuery, err := r.parseSelectorAndQuery(selector, query)
 	if err != nil {
 		return nil, err
@@ -253,6 +254,19 @@ func (r *subscriptionResolver) AgentChanges(ctx context.Context, selector *strin
 
 		return model1.ToAgentChangeArray(events), !events.Empty()
 	})
+
+	go func() {
+		// fake some agent changes to get started
+		agents, _ := r.bindplane.Store().Agents(ctx)
+		changes := []*model1.AgentChange{}
+		for _, agent := range agents {
+			changes = append(changes, &model1.AgentChange{
+				Agent:      agent,
+				ChangeType: model1.AgentChangeTypeInsert,
+			})
+		}
+		channel <- changes
+	}()
 
 	return channel, nil
 }

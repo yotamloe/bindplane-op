@@ -6,6 +6,7 @@ import {
   AgentChangesDocument,
   AgentChangesSubscription,
   Suggestion,
+  useAgentChangesSubscription,
   useAgentsTableQuery,
 } from "../../../graphql/generated";
 import { SearchBar } from "../../SearchBar";
@@ -81,16 +82,26 @@ const AgentsTableComponent: React.FC<Props> = ({
   density,
   initQuery = "",
 }) => {
-  const { data, loading, refetch, subscribeToMore } = useAgentsTableQuery({
-    variables: { selector, query: initQuery },
-    fetchPolicy: "network-only",
-    nextFetchPolicy: "cache-only",
-  });
+  // const { data, loading, refetch, subscribeToMore } = useAgentsTableQuery({
+  //   variables: { selector, query: initQuery },
+  //   fetchPolicy: "network-only",
+  //   nextFetchPolicy: "cache-only",
+  // });
 
   const [agents, setAgents] = useState<Agent[]>([]);
   const [subQuery, setSubQuery] = useState<string>(initQuery);
 
-  const debouncedRefetch = useMemo(() => debounce(refetch, 100), [refetch]);
+  const { data, loading } = useAgentChangesSubscription({
+    variables: { selector, query: subQuery },
+    fetchPolicy: "network-only",
+    onSubscriptionData(options) {
+      const { subscriptionData } = options;
+      console.log(subscriptionData.data?.agentChanges)
+    },
+  })
+  console.log(data);
+
+  // const debouncedRefetch = useMemo(() => debounce(refetch, 100), [refetch]);
 
   const filterOptions: Suggestion[] = [
     { label: "Disconnected agents", query: "status:disconnected" },
@@ -98,53 +109,54 @@ const AgentsTableComponent: React.FC<Props> = ({
     { label: "No managed configuration", query: "-configuration:" },
   ];
 
-  useEffect(() => {
-    if (data?.agents.agents != null) {
-      setAgents(data.agents.agents);
-    }
-  }, [data?.agents.agents, setAgents]);
+  // useEffect(() => {
+  //   if (data?.agents.agents != null) {
+  //     setAgents(data.agents.agents);
+  //   }
+  // }, [data?.agents.agents, setAgents]);
 
-  useEffect(() => {
-    subscribeToMore({
-      document: AgentChangesDocument,
-      variables: { query: subQuery, selector },
-      updateQuery: (prev, { subscriptionData, variables }) => {
-        if (
-          subscriptionData == null ||
-          variables?.query !== subQuery ||
-          variables.selector !== selector
-        ) {
-          return prev;
-        }
+  // useEffect(() => {
+  //   subscribeToMore({
+  //     document: AgentChangesDocument,
+  //     variables: { query: subQuery, selector },
+  //     updateQuery: (prev, { subscriptionData, variables }) => {
+  //       if (
+  //         subscriptionData == null ||
+  //         variables?.query !== subQuery ||
+  //         variables.selector !== selector
+  //       ) {
+  //         return prev;
+  //       }
 
-        const { data } = subscriptionData as unknown as {
-          data: AgentChangesSubscription;
-        };
+  //       const { data } = subscriptionData as unknown as {
+  //         data: AgentChangesSubscription;
+  //       };
 
-        return {
-          agents: {
-            __typename: "Agents",
-            suggestions: prev.agents.suggestions,
-            query: prev.agents.query,
-            agents: mergeAgents(prev.agents.agents, data.agentChanges),
-          },
-        };
-      },
-    });
-  }, [selector, subQuery, subscribeToMore]);
+  //       return {
+  //         agents: {
+  //           __typename: "Agents",
+  //           suggestions: prev.agents.suggestions,
+  //           query: prev.agents.query,
+  //           agents: mergeAgents(prev.agents.agents, data.agentChanges),
+  //         },
+  //       };
+  //     },
+  //   });
+  // }, [selector, subQuery, subscribeToMore]);
+
+  const debouncedSetSubQuery = useMemo(() => debounce(setSubQuery, 300), [setSubQuery])
 
   function onQueryChange(query: string) {
-    debouncedRefetch({ selector, query });
-    setSubQuery(query);
+    debouncedSetSubQuery(query);
   }
 
   return (
     <>
       <SearchBar
         filterOptions={filterOptions}
-        suggestions={data?.agents.suggestions}
+        suggestions={[]}
         onQueryChange={onQueryChange}
-        suggestionQuery={data?.agents.query}
+        suggestionQuery={""}
         initialQuery={initQuery}
       />
 
