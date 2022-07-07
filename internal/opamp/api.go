@@ -292,26 +292,50 @@ func (s *opampServer) UpdateAgent(ctx context.Context, agent *model.Agent, updat
 		return fmt.Errorf("unable to get the new configuration for agent [%s]: %w", agent.ID, err)
 	}
 
+	serverToAgent := &protobufs.ServerToAgent{
+		InstanceUid:  agent.ID,
+		Capabilities: capabilities,
+		Flags:        protobufs.ServerToAgent_ReportFullState,
+	}
+
 	if newConfiguration.Empty() {
 		s.logger.Info("agent already has the correct configuration")
+	} else {
+		agentRawConfiguration := agentConfiguration.Raw()
+		newRawConfiguration := newConfiguration.Raw()
+
+		serverToAgent.RemoteConfig = agentRemoteConfig(&newRawConfiguration, &agentRawConfiguration)
+
+		// use a separate goroutine to avoid blocking on the channel write
+		go func() {
+			// change the agent status to Configuring, but ignore any failure as this status is considered nice to have and not required to update the agent
+			_, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) { current.Status = model.Configuring })
+		}()
+	}
+
+	if updates.Version != "" {
+		s.logger.Info("sending agent update to version", zap.String("version", updates.Version))
+		serverToAgent.PackagesAvailable = &protobufs.PackagesAvailable{
+			AllPackagesHash: []byte(updates.Version),
+			Packages: map[string]*protobufs.PackageAvailable{
+				"": {
+					Type:    protobufs.PackageAvailable_TopLevelPackage,
+					Version: updates.Version,
+					File: &protobufs.DownloadableFile{
+						DownloadUrl: "",
+					},
+					Hash: []byte(updates.Version),
+				},
+			},
+		}
+	}
+
+	// if the message doesn't have a new configuration or a new package available, do nothing
+	if serverToAgent.RemoteConfig == nil && serverToAgent.PackagesAvailable == nil {
 		return nil
 	}
 
-	agentRawConfiguration := agentConfiguration.Raw()
-	newRawConfiguration := newConfiguration.Raw()
-
-	// use a separate goroutine to avoid blocking on the channel write
-	go func() {
-		// change the agent status to Configuring, but ignore any failure as this status is considered nice to have and not required to update the agent
-		_, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) { current.Status = model.Configuring })
-	}()
-
-	return s.send(context.Background(), conn, &protobufs.ServerToAgent{
-		InstanceUid:  agent.ID,
-		Capabilities: capabilities,
-		RemoteConfig: agentRemoteConfig(&newRawConfiguration, &agentRawConfiguration),
-		Flags:        protobufs.ServerToAgent_ReportFullState,
-	})
+	return s.send(context.Background(), conn, serverToAgent)
 }
 
 // SendHeartbeat sends a heartbeat to the agent to keep the websocket open

@@ -28,6 +28,9 @@ type AgentUpdates struct {
 
 	// Configuration changes are only supported by OpAMP
 	Configuration *model.Configuration
+
+	// Version instructs the agent to install a specific version
+	Version string
 }
 
 // Protocol represents a communication protocol for managing agents

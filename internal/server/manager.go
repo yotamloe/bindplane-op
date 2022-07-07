@@ -199,6 +199,10 @@ func (m *manager) handleUpdates(updates *store.Updates) {
 		}
 		// otherwise, we only care able label changes
 		if change.Type != store.EventTypeLabel {
+			// unless there is a pending version update
+			if change.Item.VersionPending != "" {
+				pending.agent(change.Item).updates.Version = change.Item.VersionPending
+			}
 			continue
 		}
 		agent := change.Item
@@ -211,7 +215,9 @@ func (m *manager) handleUpdates(updates *store.Updates) {
 		// this is only triggered for label changes right now, so we can just update that field
 		m.logger.Info("updating labels for agent", zap.String("agentID", agent.ID), zap.String("labels", agent.Labels.String()))
 		labels := agent.Labels.Custom()
-		pending.agent(agent).updates.Labels = &labels
+		agentUpdates := pending.agent(agent).updates
+		agentUpdates.Labels = &labels
+		agentUpdates.Version = agent.VersionPending
 	}
 
 	for _, event := range updates.Configurations {

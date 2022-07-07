@@ -394,6 +394,9 @@ func restartAgent(c *gin.Context, bindplane server.BindPlane) {
 // @Router /agents/{id}/version [post]
 // @Param 	name	path	string	true "the id of the agent"
 func updateAgent(c *gin.Context, bindplane server.BindPlane) {
+	ctx, span := tracer.Start(c.Request.Context(), "rest/updateAgent")
+	defer span.End()
+
 	id := c.Param("id")
 	var req model.PostAgentVersionRequest
 
@@ -402,8 +405,14 @@ func updateAgent(c *gin.Context, bindplane server.BindPlane) {
 		return
 	}
 
-	// TODO(andy): Update the version
-	bindplane.Logger().Info("TODO Update agent", zap.String("id", id), zap.String("version", req.Version))
+	// set the pending version
+	_, err := bindplane.Store().UpsertAgent(ctx, id, func(current *model.Agent) {
+		current.VersionPending = req.Version
+	})
+	if err != nil {
+		handleErrorResponse(c, http.StatusInternalServerError, err)
+		return
+	}
 
 	c.Status(http.StatusNoContent)
 }

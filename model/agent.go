@@ -65,6 +65,9 @@ type Agent struct {
 	// SecretKey is provided by the agent to authenticate
 	SecretKey string `json:"-" yaml:"-"`
 
+	// VersionPending is used to indicate that an agent is being upgraded
+	VersionPending string `json:"versionPending,omitempty" yaml:"versionPending,omitempty"`
+
 	// reported by Status messages
 	Status       AgentStatus `json:"status"`
 	ErrorMessage string      `json:"errorMessage,omitempty" yaml:"errorMessage,omitempty"`

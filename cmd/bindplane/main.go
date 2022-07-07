@@ -29,6 +29,7 @@ import (
 	"github.com/observiq/bindplane-op/internal/cli/commands/label"
 	"github.com/observiq/bindplane-op/internal/cli/commands/profile"
 	"github.com/observiq/bindplane-op/internal/cli/commands/serve"
+	"github.com/observiq/bindplane-op/internal/cli/commands/update"
 	"github.com/observiq/bindplane-op/internal/cli/commands/validate"
 	"github.com/observiq/bindplane-op/internal/cli/commands/version"
 	"github.com/spf13/cobra"
@@ -64,6 +65,7 @@ func main() {
 		version.Command(bindplane),
 		initialize.Command(bindplane, h, initialize.DualMode),
 		install.Command(bindplane),
+		update.Command(bindplane),
 		validate.Command(bindplane),
 	)
 
