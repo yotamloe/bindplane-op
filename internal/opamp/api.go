@@ -328,6 +328,9 @@ func (s *opampServer) UpdateAgent(ctx context.Context, agent *model.Agent, updat
 				},
 			},
 		}
+
+		// TODO(andy): Remove this before merging
+		_, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) { current.VersionPending = "" })
 	}
 
 	// if the message doesn't have a new configuration or a new package available, do nothing
