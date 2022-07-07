@@ -206,19 +206,6 @@ type GoogleCloudPubSub struct {
 	Subscription string `mapstructure:"subscription,omitempty" yaml:"subscription,omitempty"`
 }
 
-// GoogleCloudTracing is configuration for tracing to Google Cloud Monitoring
-type GoogleCloudTracing struct {
-	Enabled         bool   `mapstructure:"enabled" yaml:"enabled"`
-	ProjectID       string `mapstructure:"projectID,omitempty" yaml:"projectID,omitempty"`
-	CredentialsFile string `mapstructure:"credentialsFile,omitempty" yaml:"credentialsFile,omitempty"`
-}
-
-// OpenTelemetryTracing is configuration for tracing to an Open Telemetry Collector
-type OpenTelemetryTracing struct {
-	Enabled  bool   `mapstructure:"enabled" yaml:"enabled"`
-	Endpoint string `mapstructure:"endpoint,omitempty" yaml:"endpoint,omitempty"`
-}
-
 // Client TODO(doc)
 type Client struct {
 	Common
