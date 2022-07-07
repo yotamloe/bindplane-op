@@ -56,5 +56,5 @@ type Protocol interface {
 
 // Empty returns true if the updates are empty because no changes need to be made to the agent
 func (u *AgentUpdates) Empty() bool {
-	return u.Labels == nil && u.Configuration == nil
+	return u.Labels == nil && u.Configuration == nil && u.Version == ""
 }

@@ -197,15 +197,15 @@ func (m *manager) handleUpdates(updates *store.Updates) {
 			m.disconnect(change.Item.ID)
 			continue
 		}
+		agent := change.Item
 		// otherwise, we only care able label changes
 		if change.Type != store.EventTypeLabel {
 			// unless there is a pending version update
-			if change.Item.VersionPending != "" {
-				pending.agent(change.Item).updates.Version = change.Item.VersionPending
+			if agent.VersionPending != "" {
+				pending.agent(agent).updates.Version = agent.VersionPending
 			}
 			continue
 		}
-		agent := change.Item
 
 		// only consider connected agents
 		if !m.connected(agent.ID) {

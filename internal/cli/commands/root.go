@@ -171,7 +171,7 @@ func initTracing(bindplane *cli.BindPlane) {
 	if tracing == nil || !tracing.Enabled {
 		return
 	}
-	bindplane.Logger().Info("Enabling tracing to Google Cloud")
+	bindplane.Logger().Debug("Enabling tracing to Google Cloud")
 
 	hostname, _ := os.Hostname()
 	exporter, err := texporter.New(
@@ -199,7 +199,7 @@ func initTracing(bindplane *cli.BindPlane) {
 
 	// cleanly shutdown and flush telemetry when the application exits.
 	bindplane.AddShutdownHook(func() {
-		bindplane.Logger().Info("flushing traces to Google Cloud before shutdown")
+		bindplane.Logger().Debug("flushing traces to Google Cloud before shutdown")
 
 		// do not make the application hang when it is shutdown.
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
