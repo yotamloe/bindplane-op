@@ -6,7 +6,7 @@ import { validateNameField } from "../../utils/forms/validate-name-field";
 import { useValidationContext } from "./ValidationContext";
 
 import styles from "./parameter-input.module.scss";
-import { classes as classesUtil } from '../../utils/styles';
+import { classes as classesUtil } from "../../utils/styles";
 
 interface ParamInputProps {
   classes?: { [name: string]: string };
@@ -18,7 +18,9 @@ interface ParamInputProps {
 export const ParameterInput: React.FC<ParamInputProps> = (props) => {
   let classes = props.classes;
   if (props.definition.relevantIf != null) {
-    classes = Object.assign(classes || {}, { root: classesUtil([classes?.root, styles.indent]) });
+    classes = Object.assign(classes || {}, {
+      root: classesUtil([classes?.root, styles.indent]),
+    });
   }
   switch (props.definition.type) {
     case ParameterType.String:
@@ -179,7 +181,7 @@ export const IntParamInput: React.FC<ParamInputProps> = ({
 
 interface ResourceNameInputProps extends Omit<ParamInputProps, "definition"> {
   existingNames?: string[];
-  kind: "source" | "destination" | "configuration";
+  kind: "source" | "destination" | "configuration" | "processor";
 }
 
 export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({

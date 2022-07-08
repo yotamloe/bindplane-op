@@ -12,9 +12,9 @@ interface ResourceButtonProps {
   telemetryTypes?: PipelineType[];
 }
 
-// Resource button is used to display a ResourceType, Source, or Destination as
-// selectable button in a stack.
-export const ResourceButton: React.FC<ResourceButtonProps> = ({
+// Resource button is used to display a SourceType, ProcessorType, or DestinationType
+// as selectable button in a stack.
+export const ResourceTypeButton: React.FC<ResourceButtonProps> = ({
   icon,
   displayName,
   onSelect,
