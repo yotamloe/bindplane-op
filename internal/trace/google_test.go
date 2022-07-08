@@ -16,6 +16,7 @@ package trace
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -28,18 +29,6 @@ func TestNewGoogleCloudExporter(t *testing.T) {
 		errStr string
 	}{
 		{
-			"empty",
-			GoogleCloudTracing{},
-			"no project found with application default credentials",
-		},
-		{
-			"valid",
-			GoogleCloudTracing{
-				ProjectID: "test",
-			},
-			"",
-		},
-		{
 			"invalid-file-path",
 			GoogleCloudTracing{
 				ProjectID:       "test",
@@ -51,6 +40,10 @@ func TestNewGoogleCloudExporter(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			err := os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "invalid")
+			require.NoError(t, err)
+			defer os.Unsetenv("GOOGLE_APPLICATION_CREDENTIALS")
+
 			out, err := NewGoogleCloudExporter(context.Background(), tc.config, nil)
 
 			if tc.errStr != "" {
