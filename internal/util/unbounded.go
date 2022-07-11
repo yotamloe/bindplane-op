@@ -35,7 +35,6 @@ func (u *unboundedChan[T]) Out() <-chan T {
 // Close closes the unbounded channel
 func (u *unboundedChan[T]) Close() {
 	close(u.in)
-	u.closed = true
 }
 
 // receive will receive items from the inbound channel
@@ -43,6 +42,7 @@ func (u *unboundedChan[T]) receive() {
 	for {
 		item, ok := <-u.in
 		if !ok {
+			u.closed = true
 			return
 		}
 

@@ -17,9 +17,12 @@ package eventbus
 import (
 	"context"
 	"sync"
+	"time"
+
+	"github.com/observiq/bindplane-op/internal/util"
 )
 
-const subscriberChannelBufferSize = 10
+const flushInterval = time.Millisecond * 100
 
 // UnsubscribeFunc is a function that allows a subscriber to unsubscribe
 type UnsubscribeFunc func()
@@ -64,22 +67,22 @@ type source[T any] struct {
 var _ Source[any] = (*source[any])(nil)
 
 type subscription[T any] struct {
-	channel chan T
+	channel util.UnboundedChan[T]
 }
 
 func newSubscription[T any]() subscription[T] {
-	channel := make(chan T, subscriberChannelBufferSize)
+	channel := util.NewUnboundedChan[T](flushInterval)
 	return subscription[T]{
 		channel: channel,
 	}
 }
 
 func (s *subscription[T]) Receive(event T) {
-	s.channel <- event
+	s.channel.In() <- event
 }
 
 func (s *subscription[T]) Close() {
-	close(s.channel)
+	s.channel.Close()
 }
 
 var _ Subscriber[int] = (*subscription[int])(nil)
@@ -99,12 +102,12 @@ func newFilterSubscription[T, R any](filter SubscriptionFilter[T, R]) filterSubs
 func (s *filterSubscription[T, R]) Receive(event T) {
 	filtered, accept := s.filter(event)
 	if accept {
-		s.channel <- filtered
+		s.channel.In() <- filtered
 	}
 }
 
 func (s *filterSubscription[T, R]) Close() {
-	close(s.channel)
+	s.channel.Close()
 }
 
 var _ Subscriber[int] = (*filterSubscription[int, int])(nil)
@@ -127,7 +130,7 @@ func SubscribeUntilDone[T any](ctx context.Context, bus Source[T]) (<-chan T, Un
 	// TODO: create a subscription without a filter that implements notify
 	subscription := newSubscription[T]()
 	unsubscribe := bus.SubscribeUntilDone(ctx, &subscription)
-	return subscription.channel, unsubscribe
+	return subscription.channel.Out(), unsubscribe
 }
 
 // SubscribeWithFilter TODO
@@ -139,7 +142,7 @@ func SubscribeWithFilter[T, R any](bus Source[T], filter SubscriptionFilter[T, R
 func SubscribeWithFilterUntilDone[T, R any](ctx context.Context, source Source[T], filter SubscriptionFilter[T, R]) (<-chan R, UnsubscribeFunc) {
 	subscription := newFilterSubscription(filter)
 	unsubscribe := source.SubscribeUntilDone(ctx, &subscription)
-	return subscription.channel, unsubscribe
+	return subscription.channel.Out(), unsubscribe
 }
 
 // SubscribeUntilDone adds the subscriber and returns a cancel function.
