@@ -86,8 +86,6 @@ export const MainView: React.FC<MainProps> = ({
 
     isFunction(onSave) && onSave(formValues);
   }
-  console.log("errors", errors);
-  console.log("disabled: ", !isValid(errors));
 
   const primaryButton: JSX.Element = (
     <Button
@@ -166,6 +164,7 @@ export const MainView: React.FC<MainProps> = ({
               }
               return (
                 <InlineProcessorLabel
+                  key={`${p.name}-${ix}`}
                   processor={p}
                   onEdit={() => onEditProcessor(ix)}
                   onRemove={onRemove}

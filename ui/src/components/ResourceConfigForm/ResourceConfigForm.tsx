@@ -14,6 +14,7 @@ import {
   ResourceConfiguration,
   GetProcessorTypesQuery,
 } from "../../graphql/generated";
+import { BPResourceConfiguration } from "../../utils/classes";
 
 enum Page {
   MAIN,
@@ -69,9 +70,6 @@ interface ResourceFormProps {
 
   // The callback when cancel is clicked.
   onBack?: () => void;
-
-  onEditProcessorSave?: (formValues: { [key: string]: any }) => void;
-  onNewProcessorSave?: (formValues: { [key: string]: any }) => void;
 }
 
 const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
@@ -87,8 +85,6 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
   onDelete,
   onSave,
   onBack,
-  onEditProcessorSave,
-  onNewProcessorSave,
 }) => {
   const initValues = initFormValues(
     parameterDefinitions,
@@ -97,8 +93,7 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
     includeNameField
   );
 
-  const [formValues, setFormValues] =
-    useState<{ [key: string]: any }>(initValues);
+  const [formValues, setFormValues] = useState<FormValues>(initValues);
 
   const [page, setPage] = useState<Page>(Page.MAIN);
   const [newProcessorType, setNewProcessorType] =
@@ -126,6 +121,35 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
     setPage(Page.EDIT_PROCESSOR);
   }
 
+  function handleEditProcessorSave(processorFormValues: FormValues) {
+    const processorConfig = new BPResourceConfiguration();
+    processorConfig.setParamsFromMap(processorFormValues);
+    processorConfig.type = formValues.processors![editingProcessorIndex].type;
+
+    // Replace the processor at index
+    const newProcessors = [...(formValues.processors ?? [])];
+    if (newProcessors[editingProcessorIndex] != null) {
+      newProcessors[editingProcessorIndex] = processorConfig;
+    } else {
+      newProcessors.push(processorConfig);
+    }
+
+    setFormValues((prev) => ({ ...prev, processors: newProcessors }));
+    setPage(Page.MAIN);
+  }
+
+  function handleNewProcessorSave(processorFormValues: FormValues) {
+    const processorConfig = new BPResourceConfiguration();
+    processorConfig.setParamsFromMap(processorFormValues);
+    processorConfig.type = newProcessorType!.metadata.name;
+
+    const newProcessors = [...(formValues.processors ?? [])];
+    newProcessors.push(processorConfig);
+
+    setFormValues((prev) => ({ ...prev, processors: newProcessors }));
+    setPage(Page.MAIN);
+  }
+
   switch (page) {
     case Page.MAIN:
       return (
@@ -138,7 +162,7 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
           setFormValues={setFormValues}
           existingResourceNames={existingResourceNames}
           parameterDefinitions={parameterDefinitions}
-          processors={processors}
+          processors={formValues.processors}
           enableProcessors={enableProcessors}
           onBack={onBack}
           onSave={onSave}
@@ -159,7 +183,7 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
       return (
         <CreateProcessorConfigureView
           onBack={handleReturnToMain}
-          onSave={onNewProcessorSave!}
+          onSave={handleNewProcessorSave!}
           title={title}
           processorType={newProcessorType!}
         />
@@ -168,9 +192,9 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
       return (
         <EditProcessorView
           title={title}
-          processors={processors!}
+          processors={formValues.processors!}
           editingIndex={editingProcessorIndex}
-          onEditProcessorSave={onEditProcessorSave!}
+          onEditProcessorSave={handleEditProcessorSave!}
           onBack={handleReturnToMain}
         />
       );
