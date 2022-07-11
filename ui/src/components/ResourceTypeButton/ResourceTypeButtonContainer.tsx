@@ -6,11 +6,13 @@ import styles from "./resource-button.module.scss";
 
 interface Props {
   onSearchChange: (v: string) => void;
+  placeholder?: string;
 }
 
 export const ResourceTypeButtonContainer: React.FC<Props> = ({
   children,
   onSearchChange,
+  placeholder,
 }) => {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     onSearchChange(e.target.value);
@@ -19,7 +21,7 @@ export const ResourceTypeButtonContainer: React.FC<Props> = ({
   return (
     <>
       <TextField
-        placeholder="Search for a technology..."
+        placeholder={placeholder ?? "Search for a technology..."}
         size="small"
         onChange={handleChange}
         type="search"

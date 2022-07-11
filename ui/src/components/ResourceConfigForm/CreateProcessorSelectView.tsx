@@ -1,6 +1,7 @@
 import { gql } from "@apollo/client";
-import { Button } from "@mui/material";
-import { useState } from "react";
+import { Box, Button, CircularProgress } from "@mui/material";
+import { useSnackbar } from "notistack";
+import { useEffect, useState } from "react";
 import { ButtonFooter, FormTitle, ProcessorType } from ".";
 import { useGetProcessorTypesQuery } from "../../graphql/generated";
 import { metadataSatisfiesSubstring } from "../../utils/metadata-satisfies-substring";
@@ -45,9 +46,18 @@ interface CreateProcessorSelectViewProps {
 
 export const CreateProcessorSelectView: React.FC<CreateProcessorSelectViewProps> =
   ({ title, onBack, onSelect }) => {
-    // TODO (dsvanlani) handle error and loading states
     const { data, loading, error } = useGetProcessorTypesQuery();
     const [search, setSearch] = useState("");
+    const { enqueueSnackbar } = useSnackbar();
+
+    useEffect(() => {
+      if (error != null) {
+        enqueueSnackbar("Error retrieving data for Processor Type.", {
+          variant: "error",
+          key: "Error retrieving data for Processor Type.",
+        });
+      }
+    }, [enqueueSnackbar, error]);
 
     const backButton: JSX.Element = (
       <Button variant="contained" color="secondary" onClick={onBack}>
@@ -65,7 +75,13 @@ export const CreateProcessorSelectView: React.FC<CreateProcessorSelectViewProps>
 
         <ResourceTypeButtonContainer
           onSearchChange={(v: string) => setSearch(v)}
+          placeholder={"Search for a processor..."}
         >
+          {loading && (
+            <Box display="flex" justifyContent={"center"} marginTop={2}>
+              <CircularProgress />
+            </Box>
+          )}
           {data?.processorTypes
             .filter((pt) => metadataSatisfiesSubstring(pt, search))
             .map((p) => (
