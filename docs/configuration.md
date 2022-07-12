@@ -82,8 +82,9 @@ for detailed usage.
 | Option       | Flag            | Environment Variable      |
 | ------------ | --------------- | ------------------------- |
 | tlsCert      | --tls-cert      | BINDPLANE_CONFIG_TLS_CERT |
-| tlsKey       | --tls-key       | BINDPLANE_CONFIG_TLS_KEY  |   
+| tlsKey       | --tls-key       | BINDPLANE_CONFIG_TLS_KEY  |
 | tlsCA        | --tls-ca        | BINDPLANE_CONFIG_TLS_CA   |
+| tlsSkipVerify | --tls-skip-verify | BINDPLANE_CONFIG_TLS_SKIP_VERIFY |
 
 Server
 - tlsCert: Enables server side TLS
@@ -94,6 +95,7 @@ Client
 - tlsCa: Allows client to trust the server certificate. Not required if the host operating system already trusts the server certificate.
 - tlsCert: Enables mutual TLS
 - tlsKey: Enables mutual TLS
+- tlsSkipVerify: Skip server certificate verification
 
 **Storage Backend**
 
