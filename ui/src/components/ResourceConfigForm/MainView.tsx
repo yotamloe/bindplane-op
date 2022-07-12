@@ -1,4 +1,4 @@
-import { Grid, Button, Typography, Divider } from "@mui/material";
+import { Grid, Button, Typography } from "@mui/material";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { isFunction } from "lodash";
 import {
@@ -6,17 +6,16 @@ import {
   ResourceConfiguration,
 } from "../../graphql/generated";
 import { classes } from "../../utils/styles";
-import { PlusCircleIcon } from "../Icons";
 import {
   ButtonFooter,
   FormTitle,
-  InlineProcessorLabel,
   ParameterInput,
   ResourceNameInput,
   satisfiesRelevantIf,
   useValidationContext,
   isValid,
 } from ".";
+import { InlineProcessorContainer } from "./InlineProcessorContainer";
 
 import mixins from "../../styles/mixins.module.scss";
 
@@ -151,41 +150,13 @@ export const MainView: React.FC<MainProps> = ({
           )}
         </Grid>
 
-        {/** Processors Section */}
-        {processors && (
-          <>
-            <Divider />
-            <Typography fontWeight={600} marginTop={2}>
-              Processors
-            </Typography>
-            {processors.map((p, ix) => {
-              function onRemove() {
-                // TODO
-              }
-              return (
-                <InlineProcessorLabel
-                  key={`${p.name}-${ix}`}
-                  processor={p}
-                  onEdit={() => onEditProcessor(ix)}
-                  onRemove={onRemove}
-                />
-              );
-            })}
-          </>
-        )}
-
         {enableProcessors && (
-          <>
-            <Button
-              variant="text"
-              startIcon={<PlusCircleIcon />}
-              classes={{ root: mixins["mb-2"] }}
-              onClick={onAddProcessor}
-            >
-              Add processor
-            </Button>
-            <Divider />
-          </>
+          <InlineProcessorContainer
+            processors={formValues.processors ?? []}
+            onAddProcessor={onAddProcessor}
+            onEditProcessor={onEditProcessor}
+            setFormValues={setFormValues}
+          />
         )}
 
         <ButtonFooter
