@@ -150,6 +150,13 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
     setPage(Page.MAIN);
   }
 
+  function handleRemoveProcessor(removeIndex: number) {
+    const newProcessors = [...(formValues.processors ?? [])];
+    newProcessors.splice(removeIndex, 1);
+
+    setFormValues((prev) => ({ ...prev, processors: newProcessors }));
+  }
+
   switch (page) {
     case Page.MAIN:
       return (
@@ -162,13 +169,13 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
           setFormValues={setFormValues}
           existingResourceNames={existingResourceNames}
           parameterDefinitions={parameterDefinitions}
-          processors={formValues.processors}
           enableProcessors={enableProcessors}
           onBack={onBack}
           onSave={onSave}
           onDelete={onDelete}
           onAddProcessor={handleAddProcessor}
           onEditProcessor={handleEditProcessorClick}
+          onRemoveProcessor={handleRemoveProcessor}
         />
       );
     case Page.CREATE_PROCESSOR_SELECT:

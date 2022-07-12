@@ -4,15 +4,16 @@ import { PlusCircleIcon } from "../Icons";
 import { InlineProcessorLabel } from "./InlineProcessorLabel";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-
-import mixins from "../../styles/mixins.module.scss";
 import { useCallback, useState } from "react";
 import { FormValues } from ".";
+
+import mixins from "../../styles/mixins.module.scss";
 
 interface Props {
   processors: ResourceConfiguration[];
   onAddProcessor: () => void;
   onEditProcessor: (index: number) => void;
+  onRemoveProcessor: (index: number) => void;
   setFormValues: (value: React.SetStateAction<FormValues>) => void;
 }
 
@@ -21,9 +22,18 @@ export const InlineProcessorContainer: React.FC<Props> = ({
   processors: processorsProp,
   onAddProcessor,
   onEditProcessor,
+  onRemoveProcessor,
 }) => {
   // Manage the processor order state internally in this component
   const [processors, setProcessors] = useState(processorsProp);
+
+  function handleRemoveProcessor(removeIndex: number) {
+    const newProcessors = [...processors];
+    newProcessors.splice(removeIndex, 1);
+
+    setProcessors(newProcessors);
+    onRemoveProcessor(removeIndex);
+  }
 
   function handleDrop() {
     setFormValues((prev: FormValues) => ({
@@ -37,9 +47,6 @@ export const InlineProcessorContainer: React.FC<Props> = ({
       if (dragIndex === hoverIndex) {
         return;
       }
-      console.log(
-        `Moving processor at index ${dragIndex} to index ${hoverIndex}`
-      );
 
       const newProcessors = [...processors];
 
@@ -63,17 +70,13 @@ export const InlineProcessorContainer: React.FC<Props> = ({
           Processors
         </Typography>
         {processors.map((p, ix) => {
-          function onRemove() {
-            // TODO (dsvanlani)
-          }
-
           return (
             <InlineProcessorLabel
               moveProcessor={moveProcessor}
               key={`${p.name}-${ix}`}
               processor={p}
               onEdit={() => onEditProcessor(ix)}
-              onRemove={onRemove}
+              onRemove={() => handleRemoveProcessor(ix)}
               onDrop={handleDrop}
               index={ix}
             />

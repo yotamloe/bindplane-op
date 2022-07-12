@@ -32,13 +32,13 @@ interface MainProps {
   includeNameField?: boolean;
   existingResourceNames?: string[];
   parameterDefinitions: ParameterDefinition[];
-  processors: Maybe<ResourceConfiguration[]>;
   enableProcessors?: boolean;
   onBack?: () => void;
   onSave?: (formValues: { [key: string]: any }) => void;
   onDelete?: () => void;
   onAddProcessor: () => void;
   onEditProcessor: (editingIndex: number) => void;
+  onRemoveProcessor: (removeIndex: number) => void;
 }
 
 export const MainView: React.FC<MainProps> = ({
@@ -50,13 +50,13 @@ export const MainView: React.FC<MainProps> = ({
   setFormValues,
   existingResourceNames,
   parameterDefinitions,
-  processors,
   enableProcessors,
   onBack,
   onSave,
   onDelete,
   onAddProcessor,
   onEditProcessor,
+  onRemoveProcessor,
 }) => {
   const { errors } = useValidationContext();
 
@@ -119,7 +119,6 @@ export const MainView: React.FC<MainProps> = ({
       <FormTitle title={title} description={description} />
 
       <form onSubmit={handleSubmit} data-testid="resource-form">
-        {/** Source Configuration Section */}
         <Typography fontWeight={600} marginBottom={2}>
           Configure
         </Typography>
@@ -152,7 +151,8 @@ export const MainView: React.FC<MainProps> = ({
 
         {enableProcessors && (
           <InlineProcessorContainer
-            processors={formValues.processors ?? []}
+            processors={formValues.processors}
+            onRemoveProcessor={onRemoveProcessor}
             onAddProcessor={onAddProcessor}
             onEditProcessor={onEditProcessor}
             setFormValues={setFormValues}

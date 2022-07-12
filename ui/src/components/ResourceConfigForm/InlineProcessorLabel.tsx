@@ -68,7 +68,7 @@ export const InlineProcessorLabel: React.FC<Props> = ({
     variables: { type: processor.type! },
   });
 
-  const [{ isDragging }, dragRef] = useDrag({
+  const [, dragRef] = useDrag({
     type: "inline-processor",
     item: { index },
     collect: (monitor) => ({
