@@ -155,6 +155,8 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
     newProcessors.splice(removeIndex, 1);
 
     setFormValues((prev) => ({ ...prev, processors: newProcessors }));
+    setPage(Page.MAIN);
+    setEditingProcessorIndex(-1);
   }
 
   switch (page) {
@@ -202,6 +204,7 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
           processors={formValues.processors!}
           editingIndex={editingProcessorIndex}
           onEditProcessorSave={handleEditProcessorSave!}
+          onRemove={handleRemoveProcessor}
           onBack={handleReturnToMain}
         />
       );

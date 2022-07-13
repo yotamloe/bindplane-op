@@ -13,7 +13,6 @@ interface Props {
   processors: ResourceConfiguration[];
   onAddProcessor: () => void;
   onEditProcessor: (index: number) => void;
-  onRemoveProcessor: (index: number) => void;
   setFormValues: (value: React.SetStateAction<FormValues>) => void;
 }
 
@@ -22,18 +21,9 @@ export const InlineProcessorContainer: React.FC<Props> = ({
   processors: processorsProp,
   onAddProcessor,
   onEditProcessor,
-  onRemoveProcessor,
 }) => {
   // Manage the processor order state internally in this component
   const [processors, setProcessors] = useState(processorsProp);
-
-  function handleRemoveProcessor(removeIndex: number) {
-    const newProcessors = [...processors];
-    newProcessors.splice(removeIndex, 1);
-
-    setProcessors(newProcessors);
-    onRemoveProcessor(removeIndex);
-  }
 
   function handleDrop() {
     setFormValues((prev: FormValues) => ({
@@ -69,6 +59,10 @@ export const InlineProcessorContainer: React.FC<Props> = ({
         <Typography fontWeight={600} marginTop={2}>
           Processors
         </Typography>
+
+        <Typography variant="body2" marginBottom={2}>
+          TODO: Processor Copy
+        </Typography>
         {processors.map((p, ix) => {
           return (
             <InlineProcessorLabel
@@ -76,7 +70,6 @@ export const InlineProcessorContainer: React.FC<Props> = ({
               key={`${p.name}-${ix}`}
               processor={p}
               onEdit={() => onEditProcessor(ix)}
-              onRemove={() => handleRemoveProcessor(ix)}
               onDrop={handleDrop}
               index={ix}
             />

@@ -1,12 +1,12 @@
 import { gql } from "@apollo/client";
-import { Button, Stack, Typography } from "@mui/material";
+import { Card, IconButton, Stack, Typography } from "@mui/material";
 import { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import {
   ResourceConfiguration,
   useGetProcessorTypeQuery,
 } from "../../graphql/generated";
-import { MenuIcon } from "../Icons";
+import { EditIcon, MenuIcon } from "../Icons";
 
 import styles from "./inline-processor-label.module.scss";
 
@@ -14,7 +14,6 @@ interface Props {
   index: number;
   processor: ResourceConfiguration;
   onEdit: () => void;
-  onRemove: () => void;
   // Move processor should change the components order state
   moveProcessor: (dragIndex: number, dropIndex: number) => void;
 
@@ -59,7 +58,6 @@ export const InlineProcessorLabel: React.FC<Props> = ({
   index,
   processor,
   onEdit,
-  onRemove,
   onDrop,
   moveProcessor,
 }) => {
@@ -111,35 +109,29 @@ export const InlineProcessorLabel: React.FC<Props> = ({
   const dragDropRef = dragRef(dropRef(ref)) as any;
 
   return (
-    <div
+    <Card
+      variant="outlined"
       ref={dragDropRef}
-      style={{ borderTop: isHovered ? "2px solid #4abaeb" : "2px solid white" }}
+      style={{
+        border: isHovered ? "1px solid #4abaeb" : undefined,
+      }}
+      classes={{ root: styles.card }}
     >
-      <Stack direction="row" alignItems={"center"} spacing={1}>
-        <MenuIcon className={styles["hover-icon"]} />
-        <Typography>{data?.processorType?.metadata.displayName}</Typography>
-        <div>
-          <Button
-            size="small"
-            variant="text"
-            color="error"
-            onClick={onRemove}
-            classes={{ root: styles.button }}
-          >
-            remove
-          </Button>
+      <Stack
+        direction="row"
+        alignItems={"center"}
+        spacing={1}
+        justifyContent={"space-between"}
+      >
+        <Stack direction={"row"} spacing={1}>
+          <MenuIcon className={styles["hover-icon"]} />
+          <Typography>{data?.processorType?.metadata.displayName}</Typography>
+        </Stack>
 
-          <Button
-            size="small"
-            variant="text"
-            color="primary"
-            onClick={onEdit}
-            classes={{ root: styles.button }}
-          >
-            edit
-          </Button>
-        </div>
+        <IconButton onClick={onEdit}>
+          <EditIcon width={15} height={15} style={{ float: "right" }} />
+        </IconButton>
       </Stack>
-    </div>
+    </Card>
   );
 };

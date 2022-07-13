@@ -56,7 +56,6 @@ export const MainView: React.FC<MainProps> = ({
   onDelete,
   onAddProcessor,
   onEditProcessor,
-  onRemoveProcessor,
 }) => {
   const { errors } = useValidationContext();
 
@@ -152,7 +151,6 @@ export const MainView: React.FC<MainProps> = ({
         {enableProcessors && (
           <InlineProcessorContainer
             processors={formValues.processors}
-            onRemoveProcessor={onRemoveProcessor}
             onAddProcessor={onAddProcessor}
             onEditProcessor={onEditProcessor}
             setFormValues={setFormValues}
