@@ -29,6 +29,8 @@ const (
 	intType     = "int"
 	stringsType = "strings"
 	enumType    = "enum"
+	yamlType    = "yaml"
+	mapType     = "map"
 )
 
 // ParameterDefinition is a basic description of a definition's parameter. This implementation comes directly from
@@ -105,7 +107,7 @@ func (p ParameterDefinition) validateType() error {
 		)
 	}
 	switch p.Type {
-	case stringType, intType, boolType, stringsType, enumType: // ok
+	case stringType, intType, boolType, stringsType, enumType, mapType, yamlType: // ok
 	default:
 		return errors.NewError(
 			fmt.Sprintf("invalid type '%s' for '%s'", p.Type, p.Name),
@@ -165,6 +167,11 @@ func (p ParameterDefinition) validateValueType(fieldType parameterFieldType, val
 		return p.validateStringArrayValue(fieldType, value)
 	case enumType:
 		return p.validateEnumValue(fieldType, value)
+	case mapType:
+		// TODO
+		return p.validateMapValue(fieldType, value)
+	case yamlType:
+		return p.validateYamlValue(fieldType, value)
 	default:
 		return errors.NewError(
 			"invalid type for parameter",
@@ -266,4 +273,14 @@ func (p ParameterDefinition) validateEnumValue(fieldType parameterFieldType, val
 		fmt.Sprintf("%s value for '%s' must be one of %v", fieldType, p.Name, p.ValidValues),
 		fmt.Sprintf("ensure %s value is listed as a valid value", fieldType),
 	)
+}
+
+func (p ParameterDefinition) validateYamlValue(fieldType parameterFieldType, value any) error {
+	// TODO
+	return nil
+}
+
+func (p ParameterDefinition) validateMapValue(fieldType parameterFieldType, value any) error {
+	// TODO
+	return nil
 }
