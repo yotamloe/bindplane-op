@@ -1,4 +1,5 @@
 import { Maybe } from "graphql/jsutils/Maybe";
+import { isEqual } from "lodash";
 import { useState } from "react";
 import {
   CreateProcessorConfigureView,
@@ -67,6 +68,8 @@ interface ResourceFormProps {
 
   // The callback when the resource is saved.
   onSave?: (formValues: { [key: string]: any }) => void;
+  // The copy on the primary button, defaults to "Save"
+  saveButtonLabel?: string;
 
   // The callback when cancel is clicked.
   onBack?: () => void;
@@ -84,6 +87,7 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
   kind,
   onDelete,
   onSave,
+  saveButtonLabel,
   onBack,
 }) => {
   const initValues = initFormValues(
@@ -94,6 +98,10 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
   );
 
   const [formValues, setFormValues] = useState<FormValues>(initValues);
+
+  // This is passed down to determine whether to enable the primary save button.
+  // If no parameters are passed down, then the form is new and is "dirty".
+  const isDirty = parameters == null || !isEqual(initValues, formValues);
 
   const [page, setPage] = useState<Page>(Page.MAIN);
   const [newProcessorType, setNewProcessorType] =
@@ -174,10 +182,12 @@ const ResourceConfigurationFormComponent: React.FC<ResourceFormProps> = ({
           enableProcessors={enableProcessors}
           onBack={onBack}
           onSave={onSave}
+          saveButtonLabel={saveButtonLabel}
           onDelete={onDelete}
           onAddProcessor={handleAddProcessor}
           onEditProcessor={handleEditProcessorClick}
           onRemoveProcessor={handleRemoveProcessor}
+          disableSave={!isDirty}
         />
       );
     case Page.CREATE_PROCESSOR_SELECT:

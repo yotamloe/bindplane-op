@@ -2,6 +2,7 @@ import { Stack, Typography } from "@mui/material";
 import { ChevronRight } from "../Icons";
 
 import mixins from "../../styles/mixins.module.scss";
+import styles from "./form-title.module.scss";
 
 interface FormTitleProps {
   title: string;
@@ -17,19 +18,17 @@ export const FormTitle: React.FC<FormTitleProps> = ({
   return (
     <>
       {/** Bread crumbs */}
-      <Stack direction="row" alignItems={"center"} spacing={1}>
+      <Stack direction="row" alignItems={"center"}>
         <Typography variant="h6">{title}</Typography>
         {crumbs &&
           crumbs.map((c, ix) => {
             return (
-              <>
+              <span key={`crumb-${ix}`} className={styles.crumb}>
                 {ix < crumbs.length && (
-                  <ChevronRight key={`chevron-${ix}`} width={14} height={14} />
+                  <ChevronRight className={styles.chevron} />
                 )}
-                <Typography key={`crumb-${ix}`} variant={"body2"}>
-                  {c}
-                </Typography>
-              </>
+                <Typography variant={"body2"}>{c}</Typography>
+              </span>
             );
           })}
       </Stack>

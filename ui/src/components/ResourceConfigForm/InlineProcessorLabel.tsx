@@ -1,6 +1,7 @@
 import { gql } from "@apollo/client";
 import { Card, IconButton, Stack, Typography } from "@mui/material";
-import { useRef } from "react";
+import { useSnackbar } from "notistack";
+import { useEffect, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import {
   ResourceConfiguration,
@@ -62,9 +63,21 @@ export const InlineProcessorLabel: React.FC<Props> = ({
   moveProcessor,
 }) => {
   // TODO (dsvanlani) handle loading and error
-  const { data, loading, error } = useGetProcessorTypeQuery({
+  const { data, error } = useGetProcessorTypeQuery({
     variables: { type: processor.type! },
   });
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    if (error != null) {
+      console.error(error);
+      enqueueSnackbar("Error retrieving Processor Type", {
+        variant: "error",
+        key: "Error retrieving Processor Type",
+      });
+    }
+  }, [enqueueSnackbar, error]);
 
   const [, dragRef] = useDrag({
     type: "inline-processor",

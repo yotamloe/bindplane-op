@@ -31,10 +31,12 @@ interface MainProps {
   enableProcessors?: boolean;
   onBack?: () => void;
   onSave?: (formValues: { [key: string]: any }) => void;
+  saveButtonLabel?: string;
   onDelete?: () => void;
   onAddProcessor: () => void;
   onEditProcessor: (editingIndex: number) => void;
   onRemoveProcessor: (removeIndex: number) => void;
+  disableSave?: boolean;
 }
 
 export const MainView: React.FC<MainProps> = ({
@@ -49,9 +51,11 @@ export const MainView: React.FC<MainProps> = ({
   enableProcessors,
   onBack,
   onSave,
+  saveButtonLabel,
   onDelete,
   onAddProcessor,
   onEditProcessor,
+  disableSave,
 }) => {
   const { errors } = useValidationContext();
 
@@ -83,12 +87,12 @@ export const MainView: React.FC<MainProps> = ({
 
   const primaryButton: JSX.Element = (
     <Button
-      disabled={!isValid(errors)}
+      disabled={!isValid(errors) || disableSave}
       type="submit"
       variant="contained"
       data-testid="resource-form-save"
     >
-      Save
+      {saveButtonLabel ?? "Save"}
     </Button>
   );
 

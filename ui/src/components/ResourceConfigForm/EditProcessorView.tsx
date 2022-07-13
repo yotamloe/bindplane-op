@@ -1,3 +1,5 @@
+import { useSnackbar } from "notistack";
+import { useEffect } from "react";
 import { FormValues, ResourceConfigForm } from ".";
 import {
   ResourceConfiguration,
@@ -24,10 +26,22 @@ export const EditProcessorView: React.FC<EditProcessorViewProps> = ({
 }) => {
   // Get the processor type
   const type = processors[editingIndex].type;
-  // TODO (dsvanlani) handle loading and error states
-  const { data, loading, error } = useGetProcessorTypeQuery({
+
+  const { data, error } = useGetProcessorTypeQuery({
     variables: { type: type ?? "" },
   });
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    if (error != null) {
+      console.error(error);
+      enqueueSnackbar("Error retrieving Processor Type", {
+        variant: "error",
+        key: "Error retrieving Processor Type",
+      });
+    }
+  }, [enqueueSnackbar, error]);
 
   return (
     <>

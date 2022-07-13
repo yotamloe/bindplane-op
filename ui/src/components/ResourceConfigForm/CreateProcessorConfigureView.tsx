@@ -18,6 +18,7 @@ export const CreateProcessorConfigureView: React.FC<CreateProcessorConfigureView
           kind={"processor"}
           parameterDefinitions={processorType.spec.parameters}
           onSave={onSave}
+          saveButtonLabel={"Add Processor"}
           onBack={onBack}
         />
       </>
