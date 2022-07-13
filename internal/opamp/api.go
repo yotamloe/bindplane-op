@@ -300,11 +300,8 @@ func (s *opampServer) UpdateAgent(ctx context.Context, agent *model.Agent, updat
 	agentRawConfiguration := agentConfiguration.Raw()
 	newRawConfiguration := newConfiguration.Raw()
 
-	// use a separate goroutine to avoid blocking on the channel write
-	go func() {
-		// change the agent status to Configuring, but ignore any failure as this status is considered nice to have and not required to update the agent
-		_, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) { current.Status = model.Configuring })
-	}()
+	// change the agent status to Configuring, but ignore any failure as this status is considered nice to have and not required to update the agent
+	_, _ = s.manager.UpsertAgent(ctx, agent.ID, func(current *model.Agent) { current.Status = model.Configuring })
 
 	return s.send(context.Background(), conn, &protobufs.ServerToAgent{
 		InstanceUid:  agent.ID,
@@ -433,17 +430,6 @@ func (s *opampServer) upsertWithConfiguration(conn opamp.Connection, message *pr
 		// update the agent description
 		if message.GetAgentDescription().GetIdentifyingAttributes() != nil {
 			updateOpAmpAgentDetails(agent, conn, message.AgentDescription)
-		}
-
-		// update the labels from manager.yaml
-		if configuration.Manager != nil {
-			s.logger.Info("manager.yaml labels", zap.String("labels", configuration.Manager.Labels))
-			if labels, err := model.LabelsFromSelector(configuration.Manager.Labels); err == nil {
-				// preserve the bindplane/ labels
-				agent.Labels = model.LabelsFromMerge(agent.Labels.BindPlane(), labels)
-			} else {
-				s.logger.Error("unable to parse agent labels", zap.String("labels", configuration.Manager.Labels), zap.Error(err))
-			}
 		}
 
 		// connect to update ConnectedAt, etc
