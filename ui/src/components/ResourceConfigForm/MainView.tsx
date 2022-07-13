@@ -1,10 +1,6 @@
 import { Grid, Button, Typography } from "@mui/material";
-import { Maybe } from "graphql/jsutils/Maybe";
 import { isFunction } from "lodash";
-import {
-  ParameterDefinition,
-  ResourceConfiguration,
-} from "../../graphql/generated";
+import { ParameterDefinition } from "../../graphql/generated";
 import { classes } from "../../utils/styles";
 import {
   ButtonFooter,
@@ -150,7 +146,7 @@ export const MainView: React.FC<MainProps> = ({
 
         {enableProcessors && (
           <InlineProcessorContainer
-            processors={formValues.processors}
+            processors={formValues.processors ?? []}
             onAddProcessor={onAddProcessor}
             onEditProcessor={onEditProcessor}
             setFormValues={setFormValues}

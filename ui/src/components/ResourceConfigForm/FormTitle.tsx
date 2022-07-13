@@ -22,10 +22,14 @@ export const FormTitle: React.FC<FormTitleProps> = ({
         {crumbs &&
           crumbs.map((c, ix) => {
             return (
-              <span key={`crumb-${ix}`}>
-                {ix < crumbs.length && <ChevronRight width={14} height={14} />}
-                <Typography variant={"body2"}>{c}</Typography>
-              </span>
+              <>
+                {ix < crumbs.length && (
+                  <ChevronRight key={`chevron-${ix}`} width={14} height={14} />
+                )}
+                <Typography key={`crumb-${ix}`} variant={"body2"}>
+                  {c}
+                </Typography>
+              </>
             );
           })}
       </Stack>
