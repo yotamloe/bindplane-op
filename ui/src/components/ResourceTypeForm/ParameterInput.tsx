@@ -39,6 +39,10 @@ export const ParameterInput: React.FC<ParamInputProps> = (props) => {
       return <BoolParamInput classes={classes} {...props} />;
     case ParameterType.Int:
       return <IntParamInput classes={classes} {...props} />;
+    case ParameterType.Map:
+      return <>TODO</>;
+    case ParameterType.Yaml:
+      return <>TODO</>;
   }
 };
 

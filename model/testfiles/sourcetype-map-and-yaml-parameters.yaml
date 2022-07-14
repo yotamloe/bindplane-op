@@ -1,0 +1,19 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: SourceType
+metadata:
+  name: test-source-type
+  description: This is a contrived source type to show map and yaml types in the UI
+  displayName: Test Source Type
+spec:
+  version: 0.0.1
+  supportedPlatforms:
+    - macos
+  parameters:
+    - name: map_type
+      label: Map Type Param
+      type: map
+      required: true
+    - name: yaml
+      label: Yaml Type Param
+      type: yaml
+      required: true
