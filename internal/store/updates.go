@@ -208,17 +208,6 @@ func (updates *Updates) addProcessorUpdates(s Store) error {
 	return nil
 }
 
-func (updates *Updates) addProcessorUpdates(s Store) error {
-	if updates.ProcessorTypes.Empty() {
-		return nil
-	}
-
-	// TODO(andy): add processors based on modified processor-types
-	// TODO(andy): add sources based on modified processor-types
-
-	return nil
-}
-
 func (updates *Updates) addDestinationUpdates(s Store) error {
 	if updates.DestinationTypes.Empty() {
 		return nil
