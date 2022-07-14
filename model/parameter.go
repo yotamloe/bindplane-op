@@ -15,12 +15,15 @@
 package model
 
 import (
+	"bytes"
 	"fmt"
 	"go/token"
+	"reflect"
 	"strconv"
 
 	"github.com/observiq/bindplane-op/model/validation"
 	"github.com/observiq/stanza/errors"
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -276,11 +279,45 @@ func (p ParameterDefinition) validateEnumValue(fieldType parameterFieldType, val
 }
 
 func (p ParameterDefinition) validateYamlValue(fieldType parameterFieldType, value any) error {
+	str, ok := value.(string)
+	if !ok {
+		return errors.NewError(
+			fmt.Sprintf("expected a string for parameter %s", p.Name),
+			fmt.Sprintf("ensure that the value is a string"),
+		)
+	}
+
+	blah := bytes.NewBufferString(str)
+	decoder := yaml.NewDecoder(blah)
+	two := make(map[string]any)
+	err := decoder.Decode(two)
+	if err != nil {
+		return err
+	}
 	// TODO
 	return nil
 }
 
 func (p ParameterDefinition) validateMapValue(fieldType parameterFieldType, value any) error {
+	reflectValue := reflect.ValueOf(value)
+	kind := reflectValue.Kind()
+	if kind != reflect.Map {
+		return errors.NewError(
+			fmt.Sprintf("expected type map for parameter %s but got %s", p.Name, kind),
+			"ensure parameter is map[string]string",
+		)
+	}
+
+	if m, ok := value.(map[string]any); ok {
+		for _, v := range m {
+			if k, ok := v.(string); !ok {
+				return errors.NewError(
+					fmt.Sprintf("expected type string for value for key %s in map", k),
+					fmt.Sprintf("ensure all values in map are strings"),
+				)
+			}
+		}
+	}
 	// TODO
 	return nil
 }

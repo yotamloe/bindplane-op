@@ -275,6 +275,67 @@ func TestValidateValue(t *testing.T) {
 			},
 			5,
 		},
+		{
+			"ValidMap",
+			false,
+			ParameterDefinition{
+				Type: "map",
+			},
+			map[string]string{
+				"foo":  "bar",
+				"blah": "baz",
+			},
+		},
+		{
+			"InvalidMap",
+			true,
+			ParameterDefinition{
+				Type: "map",
+			},
+			5,
+		},
+		{
+			"InvalidMapType",
+			true,
+			ParameterDefinition{
+				Type: "map",
+			},
+			map[string]interface{}{
+				"blah": 1,
+				"foo":  "blah",
+			},
+		},
+		{
+			"ValidYaml",
+			false,
+			ParameterDefinition{
+				Type: "yaml",
+			},
+			`blah: foo
+bar: baz
+baz:
+- one
+- two
+`,
+		},
+		{
+			"InvalidYaml",
+			true,
+			ParameterDefinition{
+				Type: "yaml",
+			},
+			`one: two
+three: four
+- five: 6
+seven:
+	- eight
+	- nine
+	- 10
+eleven:
+	- twelve: thirteen
+	fourteen: 15
+`,
+		},
 	}
 
 	for _, tc := range testCases {
