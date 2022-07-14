@@ -61,8 +61,9 @@ export const InlineProcessorContainer: React.FC<Props> = ({
         </Typography>
 
         <Typography variant="body2" marginBottom={2}>
-          {/** TODO (dsvanlani) */}
-          TODO: Processor Copy
+          Processors are run on data after it&apos;s received and prior to being
+          sent to a destination. They will be executed in the order they appear
+          below.
         </Typography>
         {processors.map((p, ix) => {
           return (
