@@ -186,6 +186,8 @@ enum ParameterType {
   int
   bool
   enum
+  map
+  yaml
 }
 
 type ParameterDefinition {

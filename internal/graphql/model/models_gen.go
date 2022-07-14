@@ -143,6 +143,8 @@ const (
 	ParameterTypeInt     ParameterType = "int"
 	ParameterTypeBool    ParameterType = "bool"
 	ParameterTypeEnum    ParameterType = "enum"
+	ParameterTypeMap     ParameterType = "map"
+	ParameterTypeYaml    ParameterType = "yaml"
 )
 
 var AllParameterType = []ParameterType{
@@ -151,11 +153,13 @@ var AllParameterType = []ParameterType{
 	ParameterTypeInt,
 	ParameterTypeBool,
 	ParameterTypeEnum,
+	ParameterTypeMap,
+	ParameterTypeYaml,
 }
 
 func (e ParameterType) IsValid() bool {
 	switch e {
-	case ParameterTypeString, ParameterTypeStrings, ParameterTypeInt, ParameterTypeBool, ParameterTypeEnum:
+	case ParameterTypeString, ParameterTypeStrings, ParameterTypeInt, ParameterTypeBool, ParameterTypeEnum, ParameterTypeMap, ParameterTypeYaml:
 		return true
 	}
 	return false
