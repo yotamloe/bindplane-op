@@ -12,8 +12,10 @@ spec:
     - name: map_type
       label: Map Type Param
       type: map
+      description: A compelling and thorough description.
       required: true
-    - name: yaml
+    - name: yaml_type
       label: Yaml Type Param
       type: yaml
       required: true
+      description: First discovered by Sir Gerald Yaml.

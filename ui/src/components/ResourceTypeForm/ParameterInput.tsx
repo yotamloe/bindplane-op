@@ -1,7 +1,11 @@
 import {
   Autocomplete,
   Chip,
+  FormControl,
   FormControlLabel,
+  FormHelperText,
+  InputBase,
+  InputLabel,
   Switch,
   TextField,
 } from "@mui/material";
@@ -13,6 +17,7 @@ import { useValidationContext } from "./ValidationContext";
 import { classes as classesUtil } from "../../utils/styles";
 
 import styles from "./parameter-input.module.scss";
+import { YamlEditor } from "../YamlEditor";
 
 interface ParamInputProps {
   classes?: { [name: string]: string };
@@ -40,9 +45,9 @@ export const ParameterInput: React.FC<ParamInputProps> = (props) => {
     case ParameterType.Int:
       return <IntParamInput classes={classes} {...props} />;
     case ParameterType.Map:
-      return <>TODO</>;
+      return <MapParamInput classes={classes} {...props} />;
     case ParameterType.Yaml:
-      return <>TODO</>;
+      return <YamlParamInput classes={classes} {...props} />;
   }
 };
 
@@ -102,6 +107,57 @@ export const EnumParamInput: React.FC<ParamInputProps> = ({
       ))}
     </TextField>
   );
+};
+
+export const YamlParamInput: React.FC<ParamInputProps> = ({
+  classes,
+  definition,
+  value,
+  onValueChange,
+}) => {
+  const [isFocused, setFocused] = useState(false);
+
+  const shrinkLabel = isFocused || !isEmpty(value);
+
+  function handleValueChange(e: ChangeEvent<HTMLTextAreaElement>) {
+    isFunction(onValueChange) && onValueChange(e.target.value);
+  }
+
+  console.log({ value });
+
+  return (
+    <FormControl fullWidth classes={classes} required={definition.required}>
+      <InputLabel
+        shrink={shrinkLabel}
+        htmlFor={definition.name}
+        style={{
+          backgroundColor: "#fff",
+          color: shrinkLabel ? "#4abaeb" : undefined,
+          padding: shrinkLabel ? "0 10px 0 5px" : undefined,
+        }}
+      >
+        {definition.label}
+      </InputLabel>
+      <YamlEditor
+        name={definition.name}
+        value={value ?? ""}
+        onValueChange={handleValueChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        minHeight={200}
+      />
+      <FormHelperText>{definition.description}</FormHelperText>
+    </FormControl>
+  );
+};
+
+export const MapParamInput: React.FC<ParamInputProps> = ({
+  classes,
+  definition,
+  value,
+  onValueChange,
+}) => {
+  return <>TODO</>;
 };
 
 export const StringsInput: React.FC<ParamInputProps> = ({
