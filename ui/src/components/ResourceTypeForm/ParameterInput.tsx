@@ -1,16 +1,20 @@
 import {
   Autocomplete,
+  Button,
   Chip,
   FormControl,
   FormControlLabel,
   FormHelperText,
+  Input,
   InputBase,
   InputLabel,
+  OutlinedInput,
+  Stack,
   Switch,
   TextField,
 } from "@mui/material";
 import { isArray, isEmpty, isFunction } from "lodash";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { ParameterDefinition, ParameterType } from "../../graphql/generated";
 import { validateNameField } from "../../utils/forms/validate-name-field";
 import { useValidationContext } from "./ValidationContext";
@@ -18,15 +22,16 @@ import { classes as classesUtil } from "../../utils/styles";
 
 import styles from "./parameter-input.module.scss";
 import { YamlEditor } from "../YamlEditor";
+import { PlusCircleIcon } from "../Icons";
 
-interface ParamInputProps {
+interface ParamInputProps<T> {
   classes?: { [name: string]: string };
   definition: ParameterDefinition;
-  value?: any;
-  onValueChange?: (v: any) => void;
+  value?: T;
+  onValueChange?: (v: T) => void;
 }
 
-export const ParameterInput: React.FC<ParamInputProps> = (props) => {
+export const ParameterInput: React.FC<ParamInputProps<any>> = (props) => {
   let classes = props.classes;
   if (props.definition.relevantIf != null) {
     classes = Object.assign(classes || {}, {
@@ -51,7 +56,7 @@ export const ParameterInput: React.FC<ParamInputProps> = (props) => {
   }
 };
 
-export const StringParamInput: React.FC<ParamInputProps> = ({
+export const StringParamInput: React.FC<ParamInputProps<string>> = ({
   classes,
   definition,
   value,
@@ -78,7 +83,7 @@ export const StringParamInput: React.FC<ParamInputProps> = ({
   );
 };
 
-export const EnumParamInput: React.FC<ParamInputProps> = ({
+export const EnumParamInput: React.FC<ParamInputProps<string>> = ({
   classes,
   definition,
   value,
@@ -109,7 +114,7 @@ export const EnumParamInput: React.FC<ParamInputProps> = ({
   );
 };
 
-export const YamlParamInput: React.FC<ParamInputProps> = ({
+export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
   classes,
   definition,
   value,
@@ -151,16 +156,82 @@ export const YamlParamInput: React.FC<ParamInputProps> = ({
   );
 };
 
-export const MapParamInput: React.FC<ParamInputProps> = ({
-  classes,
-  definition,
-  value,
-  onValueChange,
-}) => {
-  return <>TODO</>;
-};
+export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
+  ({ classes, definition, value, onValueChange }) => {
+    const initValue = valueToTupleArray(value);
+    const [controlValue, setControlValue] = useState<tuple[]>(initValue);
 
-export const StringsInput: React.FC<ParamInputProps> = ({
+    const onChangeInput = useMemo(() => {
+      return function (
+        e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+        row: number,
+        index: number
+      ) {
+        setControlValue((prev) => {
+          const newVal = [...prev];
+          newVal[row][index] = e.target.value;
+          return newVal;
+        });
+      };
+    }, [setControlValue]);
+
+    return (
+      <>
+        <div>
+          <label aria-required={definition.required} htmlFor={definition.name}>
+            {definition.label}
+            {definition.required && " *"}
+          </label>
+
+          {controlValue.map(([k, v], rowIndex) => {
+            if (rowIndex === controlValue.length - 1) {
+              return <></>;
+            }
+            return (
+              <Stack direction="row">
+                <OutlinedInput
+                  size="small"
+                  type="text"
+                  value={k}
+                  onChange={(e) => onChangeInput(e, rowIndex, 0)}
+                />
+                <OutlinedInput
+                  size="small"
+                  type="text"
+                  value={v}
+                  onChange={(e) => onChangeInput(e, rowIndex, 1)}
+                />
+              </Stack>
+            );
+          })}
+
+          <Stack direction="row">
+            <OutlinedInput
+              size="small"
+              type="text"
+              value={controlValue[controlValue.length - 1][0]}
+              onChange={(e) => onChangeInput(e, controlValue.length - 1, 0)}
+            />
+            <OutlinedInput
+              size="small"
+              type="text"
+              value={controlValue[controlValue.length - 1][1]}
+              onChange={(e) => onChangeInput(e, controlValue.length - 1, 1)}
+            />
+          </Stack>
+
+          <Button
+            startIcon={<PlusCircleIcon />}
+            onClick={() => setControlValue((prev) => addRow(prev))}
+          >
+            Add
+          </Button>
+        </div>
+      </>
+    );
+  };
+
+export const StringsInput: React.FC<ParamInputProps<string[]>> = ({
   classes,
   definition,
   value,
@@ -188,7 +259,7 @@ export const StringsInput: React.FC<ParamInputProps> = ({
   function handleBlur() {
     if (!isEmpty(inputValue)) {
       setInputValue("");
-      onValueChange && onValueChange([...value, inputValue]);
+      onValueChange && onValueChange([...(value ?? []), inputValue]);
     }
   }
 
@@ -225,7 +296,7 @@ export const StringsInput: React.FC<ParamInputProps> = ({
   );
 };
 
-export const BoolParamInput: React.FC<ParamInputProps> = ({
+export const BoolParamInput: React.FC<ParamInputProps<boolean>> = ({
   classes,
   definition,
   value,
@@ -248,7 +319,7 @@ export const BoolParamInput: React.FC<ParamInputProps> = ({
   );
 };
 
-export const IntParamInput: React.FC<ParamInputProps> = ({
+export const IntParamInput: React.FC<ParamInputProps<number>> = ({
   classes,
   definition,
   value,
@@ -277,7 +348,8 @@ export const IntParamInput: React.FC<ParamInputProps> = ({
   );
 };
 
-interface ResourceNameInputProps extends Omit<ParamInputProps, "definition"> {
+interface ResourceNameInputProps
+  extends Omit<ParamInputProps<string>, "definition"> {
   existingNames?: string[];
   kind: "source" | "destination" | "configuration";
 }
@@ -325,3 +397,36 @@ export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({
     />
   );
 };
+
+// Utility functions
+type tuple = [string, string];
+
+function valueToTupleArray(value: any): tuple[] {
+  try {
+    const tuples = Object.entries(value);
+
+    tuples.push(["", ""]);
+    return tuples as tuple[];
+  } catch (err) {
+    return [["", ""]];
+  }
+}
+
+function tupleArrayToMap(tuples: tuple[]): Record<string, string> {
+  const mapValue: Record<string, string> = {};
+  for (const [k, v] of tuples) {
+    if (k == "") {
+      continue;
+    }
+
+    mapValue[k] = v;
+  }
+
+  return mapValue;
+}
+
+function addRow(tuples: tuple[]): tuple[] {
+  const newTuples = [...tuples];
+  newTuples.push(["", ""]);
+  return newTuples;
+}
