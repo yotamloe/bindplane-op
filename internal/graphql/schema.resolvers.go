@@ -115,6 +115,9 @@ func (r *parameterDefinitionResolver) Type(ctx context.Context, obj *model.Param
 	case "yaml":
 		return model1.ParameterTypeYaml, nil
 
+	case "multi-enum":
+		return model1.ParameterTypeMultiEnum, nil
+
 	default:
 		return "", errors.New("unknown parameter type")
 	}

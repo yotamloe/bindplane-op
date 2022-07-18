@@ -1506,6 +1506,7 @@ enum ParameterType {
   int
   bool
   enum
+  multiEnum
   map
   yaml
 }

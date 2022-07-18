@@ -168,6 +168,7 @@ export enum ParameterType {
   Enum = 'enum',
   Int = 'int',
   Map = 'map',
+  MultiEnum = 'multiEnum',
   String = 'string',
   Strings = 'strings',
   Yaml = 'yaml'
