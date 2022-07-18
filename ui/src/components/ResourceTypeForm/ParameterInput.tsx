@@ -5,11 +5,9 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  Input,
-  InputBase,
+  Grid,
   InputLabel,
   OutlinedInput,
-  Stack,
   Switch,
   TextField,
 } from "@mui/material";
@@ -183,42 +181,50 @@ export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
             {definition.required && " *"}
           </label>
 
-          {controlValue.map(([k, v], rowIndex) => {
-            if (rowIndex === controlValue.length - 1) {
-              return <></>;
-            }
-            return (
-              <Stack direction="row">
-                <OutlinedInput
-                  size="small"
-                  type="text"
-                  value={k}
-                  onChange={(e) => onChangeInput(e, rowIndex, 0)}
-                />
-                <OutlinedInput
-                  size="small"
-                  type="text"
-                  value={v}
-                  onChange={(e) => onChangeInput(e, rowIndex, 1)}
-                />
-              </Stack>
-            );
-          })}
+          <FormHelperText>{definition.description}</FormHelperText>
 
-          <Stack direction="row">
-            <OutlinedInput
-              size="small"
-              type="text"
-              value={controlValue[controlValue.length - 1][0]}
-              onChange={(e) => onChangeInput(e, controlValue.length - 1, 0)}
-            />
+          <Grid container>
+            {controlValue.map(([k, v], rowIndex) => {
+              if (rowIndex === controlValue.length - 1) {
+                return <></>;
+              }
+              return (
+                <>
+                  <Grid item xs={6}>
+                    <OutlinedInput
+                      size="small"
+                      type="text"
+                      value={k}
+                      onChange={(e) => onChangeInput(e, rowIndex, 0)}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <OutlinedInput
+                      size="small"
+                      type="text"
+                      value={v}
+                      onChange={(e) => onChangeInput(e, rowIndex, 1)}
+                    />
+                  </Grid>
+                </>
+              );
+            })}
+
+            <Grid item xs={6}>
+              <OutlinedInput
+                size="small"
+                type="text"
+                value={controlValue[controlValue.length - 1][0]}
+                onChange={(e) => onChangeInput(e, controlValue.length - 1, 0)}
+              />
+            </Grid>
             <OutlinedInput
               size="small"
               type="text"
               value={controlValue[controlValue.length - 1][1]}
               onChange={(e) => onChangeInput(e, controlValue.length - 1, 1)}
             />
-          </Stack>
+          </Grid>
 
           <Button
             startIcon={<PlusCircleIcon />}
