@@ -21,19 +21,21 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/observiq/bindplane-op/model/validation"
 	"github.com/observiq/stanza/errors"
 	"gopkg.in/yaml.v3"
 )
 
 const (
-	stringType  = "string"
-	boolType    = "bool"
-	intType     = "int"
-	stringsType = "strings"
-	enumType    = "enum"
-	yamlType    = "yaml"
-	mapType     = "map"
+	stringType    = "string"
+	boolType      = "bool"
+	intType       = "int"
+	stringsType   = "strings"
+	enumType      = "enum"
+	multiEnumType = "multi-enum"
+	yamlType      = "yaml"
+	mapType       = "map"
 )
 
 // ParameterDefinition is a basic description of a definition's parameter. This implementation comes directly from
@@ -110,7 +112,7 @@ func (p ParameterDefinition) validateType() error {
 		)
 	}
 	switch p.Type {
-	case stringType, intType, boolType, stringsType, enumType, mapType, yamlType: // ok
+	case stringType, intType, boolType, stringsType, enumType, multiEnumType, mapType, yamlType: // ok
 	default:
 		return errors.NewError(
 			fmt.Sprintf("invalid type '%s' for '%s'", p.Type, p.Name),
@@ -170,6 +172,8 @@ func (p ParameterDefinition) validateValueType(fieldType parameterFieldType, val
 		return p.validateStringArrayValue(fieldType, value)
 	case enumType:
 		return p.validateEnumValue(fieldType, value)
+	case multiEnumType:
+		return p.validateMultiEnumValue(fieldType, value)
 	case mapType:
 		// TODO
 		return p.validateMapValue(fieldType, value)
@@ -276,6 +280,39 @@ func (p ParameterDefinition) validateEnumValue(fieldType parameterFieldType, val
 		fmt.Sprintf("%s value for '%s' must be one of %v", fieldType, p.Name, p.ValidValues),
 		fmt.Sprintf("ensure %s value is listed as a valid value", fieldType),
 	)
+}
+
+func (p ParameterDefinition) validateMultiEnumValue(fieldType parameterFieldType, value any) error {
+	def, ok := value.([]string)
+	if !ok {
+		return errors.NewError(
+			fmt.Sprintf("%s value for multiple enumerated parameter '%s'", fieldType, p.Name),
+			fmt.Sprintf("ensure that the %s value is a string array", fieldType),
+		)
+	}
+
+	// Make sure all strings in the value are a validValue
+	err := &multierror.Error{}
+	for _, str := range def {
+		var containsValue bool
+		for _, validValue := range p.ValidValues {
+			if str == validValue {
+				containsValue = true
+				break
+			}
+		}
+
+		if !containsValue {
+			multierror.Append(err,
+				errors.NewError(
+					fmt.Sprintf("%s value for '%s' must be one of %v", fieldType, p.Name, p.ValidValues),
+					fmt.Sprintf("ensure that all values for %s are in %v", p.Name, p.ValidValues),
+				),
+			)
+		}
+	}
+
+	return err.ErrorOrNil()
 }
 
 func (p ParameterDefinition) validateYamlValue(fieldType parameterFieldType, value any) error {

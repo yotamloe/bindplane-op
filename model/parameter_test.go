@@ -336,6 +336,28 @@ eleven:
 	fourteen: 15
 `,
 		},
+		{
+			"ValidMultiEnum",
+			false,
+			ParameterDefinition{
+				Type:        "multi-enum",
+				ValidValues: []string{"one", "two", "three", "four"},
+			},
+			[]string{
+				"two", "four",
+			},
+		},
+		{
+			"InvalidMultiEnum",
+			true,
+			ParameterDefinition{
+				Type:        "multi-enum",
+				ValidValues: []string{"one", "two", "three", "four"},
+			},
+			[]string{
+				"one", "seven",
+			},
+		},
 	}
 
 	for _, tc := range testCases {
