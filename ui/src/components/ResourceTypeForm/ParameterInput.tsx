@@ -10,9 +10,10 @@ import {
   OutlinedInput,
   Switch,
   TextField,
+  Typography,
 } from "@mui/material";
 import { isArray, isEmpty, isFunction } from "lodash";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 import { ParameterDefinition, ParameterType } from "../../graphql/generated";
 import { validateNameField } from "../../utils/forms/validate-name-field";
 import { useValidationContext } from "./ValidationContext";
@@ -126,8 +127,6 @@ export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
     isFunction(onValueChange) && onValueChange(e.target.value);
   }
 
-  console.log({ value });
-
   return (
     <FormControl fullWidth classes={classes} required={definition.required}>
       <InputLabel
@@ -142,6 +141,7 @@ export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
         {definition.label}
       </InputLabel>
       <YamlEditor
+        required={definition.required}
         name={definition.name}
         value={value ?? ""}
         onValueChange={handleValueChange}
@@ -173,6 +173,11 @@ export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
       };
     }, [setControlValue]);
 
+    function handleBlur() {
+      const mapValue = tupleArrayToMap(controlValue);
+      onValueChange && onValueChange(mapValue);
+    }
+
     return (
       <>
         <div>
@@ -183,47 +188,62 @@ export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
 
           <FormHelperText>{definition.description}</FormHelperText>
 
-          <Grid container>
+          <Grid container spacing={1}>
+            <Grid item xs={6}>
+              <Typography fontWeight={600}>Key</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography fontWeight={600}>Value</Typography>
+            </Grid>
+          </Grid>
+          <Grid container spacing={1}>
             {controlValue.map(([k, v], rowIndex) => {
               if (rowIndex === controlValue.length - 1) {
-                return <></>;
+                return null;
               }
               return (
                 <>
-                  <Grid item xs={6}>
+                  <Grid key={`${definition.name}-${rowIndex}-0`} item xs={6}>
                     <OutlinedInput
+                      key={`${definition.name}-${rowIndex}-0-input`}
                       size="small"
                       type="text"
                       value={k}
                       onChange={(e) => onChangeInput(e, rowIndex, 0)}
+                      onBlur={handleBlur}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid key={`${definition.name}-${rowIndex}-1`} item xs={6}>
                     <OutlinedInput
+                      key={`${definition.name}-${rowIndex}-1-input`}
                       size="small"
                       type="text"
                       value={v}
                       onChange={(e) => onChangeInput(e, rowIndex, 1)}
+                      onBlur={handleBlur}
                     />
                   </Grid>
                 </>
               );
             })}
-
             <Grid item xs={6}>
               <OutlinedInput
                 size="small"
                 type="text"
                 value={controlValue[controlValue.length - 1][0]}
                 onChange={(e) => onChangeInput(e, controlValue.length - 1, 0)}
+                onBlur={handleBlur}
               />
             </Grid>
-            <OutlinedInput
-              size="small"
-              type="text"
-              value={controlValue[controlValue.length - 1][1]}
-              onChange={(e) => onChangeInput(e, controlValue.length - 1, 1)}
-            />
+            <Grid item xs={6}>
+              <OutlinedInput
+                size="small"
+                type="text"
+                value={controlValue[controlValue.length - 1][1]}
+                onChange={(e) => onChangeInput(e, controlValue.length - 1, 1)}
+                onBlur={handleBlur}
+              />
+            </Grid>
           </Grid>
 
           <Button
