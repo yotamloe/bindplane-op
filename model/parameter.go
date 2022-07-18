@@ -83,9 +83,6 @@ func (p ParameterDefinition) validateDefinition(errs validation.Errors) {
 		errs.Add(err)
 	}
 
-	fmt.Println("Name: ", p.Name)
-	fmt.Println("DEFAULT: ", p.Default)
-
 	if err := p.validateDefault(); err != nil {
 		errs.Add(err)
 	}
@@ -287,7 +284,6 @@ func (p ParameterDefinition) validateEnumValue(fieldType parameterFieldType, val
 
 func (p ParameterDefinition) validateMultiEnumValue(fieldType parameterFieldType, value any) error {
 	typ := reflect.TypeOf(value)
-	fmt.Println("TYPE OF: ", typ)
 	def, ok := value.([]any)
 	fmt.Printf("value: %v, type: %T\n, ok: %t", def, def, ok)
 	if !ok {
