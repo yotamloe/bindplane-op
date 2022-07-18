@@ -83,6 +83,9 @@ func (p ParameterDefinition) validateDefinition(errs validation.Errors) {
 		errs.Add(err)
 	}
 
+	fmt.Println("Name: ", p.Name)
+	fmt.Println("DEFAULT: ", p.Default)
+
 	if err := p.validateDefault(); err != nil {
 		errs.Add(err)
 	}
@@ -124,14 +127,14 @@ func (p ParameterDefinition) validateType() error {
 
 func (p ParameterDefinition) validateValidValues() error {
 	switch p.Type {
-	case stringType, intType, boolType, stringsType:
+	case stringType, intType, boolType, stringsType, yamlType, mapType:
 		if len(p.ValidValues) > 0 {
 			return errors.NewError(
 				fmt.Sprintf("validValues is undefined for parameter of type '%s'", p.Type),
-				"remove 'validValues' field or change type to 'enum'",
+				"remove 'validValues' field or change type to 'enum' or 'multi-enum",
 			)
 		}
-	case enumType:
+	case enumType, multiEnumType:
 		if len(p.ValidValues) == 0 {
 			return errors.NewError(
 				"parameter of type 'enum' must have 'validValues' specified",
@@ -283,7 +286,10 @@ func (p ParameterDefinition) validateEnumValue(fieldType parameterFieldType, val
 }
 
 func (p ParameterDefinition) validateMultiEnumValue(fieldType parameterFieldType, value any) error {
-	def, ok := value.([]string)
+	typ := reflect.TypeOf(value)
+	fmt.Println("TYPE OF: ", typ)
+	def, ok := value.([]any)
+	fmt.Printf("value: %v, type: %T\n, ok: %t", def, def, ok)
 	if !ok {
 		return errors.NewError(
 			fmt.Sprintf("%s value for multiple enumerated parameter '%s'", fieldType, p.Name),
