@@ -8,6 +8,7 @@ import {
   Grid,
   InputLabel,
   OutlinedInput,
+  Stack,
   Switch,
   TextField,
   Typography,
@@ -18,10 +19,10 @@ import { ParameterDefinition, ParameterType } from "../../graphql/generated";
 import { validateNameField } from "../../utils/forms/validate-name-field";
 import { useValidationContext } from "./ValidationContext";
 import { classes as classesUtil } from "../../utils/styles";
-
-import styles from "./parameter-input.module.scss";
 import { YamlEditor } from "../YamlEditor";
 import { PlusCircleIcon } from "../Icons";
+
+import styles from "./parameter-input.module.scss";
 
 interface ParamInputProps<T> {
   classes?: { [name: string]: string };
@@ -52,6 +53,8 @@ export const ParameterInput: React.FC<ParamInputProps<any>> = (props) => {
       return <MapParamInput classes={classes} {...props} />;
     case ParameterType.Yaml:
       return <YamlParamInput classes={classes} {...props} />;
+    case ParameterType.MultiEnum:
+      return <MultiEnumParamInput classes={classes} {...props} />;
   }
 };
 
@@ -110,6 +113,58 @@ export const EnumParamInput: React.FC<ParamInputProps<string>> = ({
         </option>
       ))}
     </TextField>
+  );
+};
+
+export const MultiEnumParamInput: React.FC<ParamInputProps<string[]>> = ({
+  classes,
+  definition,
+  value,
+  onValueChange,
+}) => {
+  function handleToggleValue(
+    event: ChangeEvent<HTMLInputElement>,
+    checked: boolean,
+    toggleValue: string
+  ) {
+    const newValue = [...(value ?? [])];
+    if (checked) {
+      // Make sure that toggleValue is in new value array
+      if (!newValue.includes(toggleValue)) {
+        newValue.push(toggleValue);
+      }
+    } else {
+      // Remove the toggle value from the array
+      const atIndex = newValue.findIndex((v) => v === toggleValue);
+      if (atIndex > -1) {
+        newValue.splice(atIndex, 1);
+      }
+    }
+
+    onValueChange && onValueChange(newValue);
+  }
+
+  return (
+    <>
+      <InputLabel>{definition.label}</InputLabel>
+      <FormHelperText>{definition.description}</FormHelperText>
+      <Stack>
+        {definition.validValues!.map((vv) => (
+          <FormControlLabel
+            key={`${definition.name}-label-${vv}`}
+            control={
+              <Switch
+                key={`${definition.name}-switch-${vv}`}
+                size="small"
+                onChange={(e, c) => handleToggleValue(e, c, vv)}
+                checked={value?.includes(vv)}
+              />
+            }
+            label={vv}
+          />
+        ))}
+      </Stack>
+    </>
   );
 };
 
@@ -441,7 +496,7 @@ function valueToTupleArray(value: any): tuple[] {
 function tupleArrayToMap(tuples: tuple[]): Record<string, string> {
   const mapValue: Record<string, string> = {};
   for (const [k, v] of tuples) {
-    if (k == "") {
+    if (k === "") {
       continue;
     }
 
