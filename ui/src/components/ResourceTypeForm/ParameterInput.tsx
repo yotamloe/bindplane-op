@@ -212,7 +212,7 @@ export const YamlParamInput: React.FC<ParamInputProps<string>> = ({
 export const MapParamInput: React.FC<ParamInputProps<Record<string, string>>> =
   ({ classes, definition, value, onValueChange }) => {
     const initValue = valueToTupleArray(value);
-    const [controlValue, setControlValue] = useState<tuple[]>(initValue);
+    const [controlValue, setControlValue] = useState<Tuple[]>(initValue);
 
     const onChangeInput = useMemo(() => {
       return function (
@@ -480,20 +480,20 @@ export const ResourceNameInput: React.FC<ResourceNameInputProps> = ({
 };
 
 // Utility functions
-type tuple = [string, string];
+export type Tuple = [string, string];
 
-function valueToTupleArray(value: any): tuple[] {
+export function valueToTupleArray(value: any): Tuple[] {
   try {
     const tuples = Object.entries(value);
 
     tuples.push(["", ""]);
-    return tuples as tuple[];
+    return tuples as Tuple[];
   } catch (err) {
     return [["", ""]];
   }
 }
 
-function tupleArrayToMap(tuples: tuple[]): Record<string, string> {
+export function tupleArrayToMap(tuples: Tuple[]): Record<string, string> {
   const mapValue: Record<string, string> = {};
   for (const [k, v] of tuples) {
     if (k === "") {
@@ -506,7 +506,7 @@ function tupleArrayToMap(tuples: tuple[]): Record<string, string> {
   return mapValue;
 }
 
-function addRow(tuples: tuple[]): tuple[] {
+function addRow(tuples: Tuple[]): Tuple[] {
   const newTuples = [...tuples];
   newTuples.push(["", ""]);
   return newTuples;

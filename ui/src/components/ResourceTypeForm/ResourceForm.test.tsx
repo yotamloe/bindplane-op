@@ -5,8 +5,16 @@ import {
   ParameterType,
   RelevantIfOperatorType,
 } from "../../graphql/generated";
+import {
+  ParameterInput,
+  Tuple,
+  tupleArrayToMap,
+  valueToTupleArray,
+} from "./ParameterInput";
 import { satisfiesRelevantIf } from "./satisfiesRelevantIf";
 import { ResourceType1, ResourceType2 } from "./__test__/dummyResources";
+import renderer from "react-test-renderer";
+import { type } from "os";
 
 describe("satisfiesRelevantIf", () => {
   const formValues: { [key: string]: any } = {
@@ -182,5 +190,116 @@ describe("ResourceForm component", () => {
     fireEvent.change(nameField, { target: { value: "dest-" } });
 
     expect(screen.getByTestId("resource-form-save")).toBeDisabled();
+  });
+});
+
+describe("MapParamInput", () => {
+  it("valueToTupleArray", () => {
+    const tests = [
+      {
+        value: {
+          foo: "bar",
+          blah: "baz",
+        },
+        expect: [
+          ["foo", "bar"],
+          ["blah", "baz"],
+          ["", ""],
+        ],
+      },
+      {
+        value: null,
+        expect: [["", ""]],
+      },
+    ];
+
+    for (const test of tests) {
+      const got = valueToTupleArray(test.value);
+      expect(got).toEqual(test.expect);
+    }
+  });
+
+  it("tupleArrayToMap", () => {
+    const tests: { tuples: Tuple[]; expect: any }[] = [
+      {
+        tuples: [
+          ["one", "two"],
+          ["three", "four"],
+        ],
+        expect: {
+          one: "two",
+          three: "four",
+        },
+      },
+      {
+        tuples: [
+          ["", "blah"],
+          ["three", "four"],
+          ["some", "thing"],
+          ["", ""],
+        ],
+        expect: {
+          three: "four",
+          some: "thing",
+        },
+      },
+      {
+        tuples: [["", ""]],
+        expect: {},
+      },
+    ];
+
+    for (const test of tests) {
+      const got = tupleArrayToMap(test.tuples);
+      expect(got).toEqual(test.expect);
+    }
+  });
+
+  it("renders correctly", () => {
+    const mapParameter: ParameterDefinition = {
+      required: true,
+      label: "Label",
+      description: "description",
+      type: ParameterType.Map,
+      default: {},
+      name: "map_type_param",
+    };
+    const tree = renderer.create(<ParameterInput definition={mapParameter} />);
+    expect(tree).toMatchSnapshot();
+  });
+});
+
+describe("MultiEnumParameter", () => {
+  it("renders correctly", () => {
+    const multiEnumParameter: ParameterDefinition = {
+      required: true,
+      label: "Label",
+      description: "description",
+      type: ParameterType.MultiEnum,
+      default: {},
+      validValues: ["one", "two", "three", "four"],
+      name: "multi_enum_type_param",
+    };
+
+    const tree = renderer.create(
+      <ParameterInput definition={multiEnumParameter} />
+    );
+    expect(tree).toMatchSnapshot();
+  });
+});
+
+describe("YamlParameter", () => {
+  it("renders correctly", () => {
+    const yamlParameter: ParameterDefinition = {
+      required: true,
+      label: "Label",
+      description: "description",
+      type: ParameterType.Yaml,
+      default: "",
+      name: "yaml_type_param",
+    };
+
+    const tree = renderer.create(<ParameterInput definition={yamlParameter} />);
+    expect(tree).toMatchSnapshot();
   });
 });
