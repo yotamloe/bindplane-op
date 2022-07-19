@@ -283,7 +283,6 @@ func (p ParameterDefinition) validateEnumValue(fieldType parameterFieldType, val
 }
 
 func (p ParameterDefinition) validateMultiEnumValue(fieldType parameterFieldType, value any) error {
-	typ := reflect.TypeOf(value)
 	def, ok := value.([]any)
 	fmt.Printf("value: %v, type: %T\n, ok: %t", def, def, ok)
 	if !ok {
@@ -357,6 +356,5 @@ func (p ParameterDefinition) validateMapValue(fieldType parameterFieldType, valu
 			}
 		}
 	}
-	// TODO
 	return nil
 }

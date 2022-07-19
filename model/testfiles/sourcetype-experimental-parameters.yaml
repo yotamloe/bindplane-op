@@ -2,6 +2,7 @@ apiVersion: bindplane.observiq.com/v1beta
 kind: SourceType
 metadata:
   name: experimental-parameter-types
+  icon: /icons/destinations/otlp.svg
   description: This is a contrived source type to show experimental parameter types in the UI
   displayName: Experimental Source Type
 spec:
