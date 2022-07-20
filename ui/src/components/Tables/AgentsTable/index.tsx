@@ -123,13 +123,22 @@ const AgentsTableComponent: React.FC<Props> = ({
     variables: { selector, query: subQuery, seed: true },
     fetchPolicy: "network-only",
     onSubscriptionData(options) {
-      const { subscriptionData } = options;
-      const size = JSON.stringify(subscriptionData.data?.agentChanges).length;
+      const agentChanges = options.subscriptionData.data?.agentChanges;
+      if (agentChanges == null) {
+        setData({
+          agents: [],
+          suggestions: [],
+          query: "",
+        });
+        return;
+      }
+
+      // keep track of the amount of data loaded for now
+      const size = JSON.stringify(agentChanges).length;
       total += size;
       console.log(`${size} bytes => ${total / 1000} k total`);
 
-      const query = subscriptionData.data?.agentChanges.query;
-      const changes = subscriptionData.data?.agentChanges.agentChanges;
+      const { query, agentChanges: changes, suggestions } = agentChanges;
       if (changes != null) {
         if (query === data.query) {
           // query is the same, accumulate results
@@ -140,7 +149,6 @@ const AgentsTableComponent: React.FC<Props> = ({
           });
         } else {
           // query changed, start over
-          const suggestions = subscriptionData.data?.agentChanges.suggestions;
           setData({
             agents: applyAgentChanges(changes, []),
             suggestions: suggestions || [],
