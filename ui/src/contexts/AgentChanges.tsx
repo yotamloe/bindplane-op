@@ -13,7 +13,7 @@ export const AgentChangesProvider: React.FC = ({ children }) => {
   const { data } = useAgentChangesSubscription();
   return (
     <AgentChangesContext.Provider
-      value={{ agentChanges: data?.agentChanges || [] }}
+      value={{ agentChanges: data?.agentChanges.agentChanges || [] }}
     >
       {children}
     </AgentChangesContext.Provider>

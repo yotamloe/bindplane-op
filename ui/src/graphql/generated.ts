@@ -52,6 +52,13 @@ export enum AgentChangeType {
   Update = 'UPDATE'
 }
 
+export type AgentChanges = {
+  __typename?: 'AgentChanges';
+  agentChanges: Array<AgentChange>;
+  query?: Maybe<Scalars['String']>;
+  suggestions?: Maybe<Array<Suggestion>>;
+};
+
 export type AgentConfiguration = {
   __typename?: 'AgentConfiguration';
   Collector?: Maybe<Scalars['String']>;
@@ -292,13 +299,14 @@ export type SourceType = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  agentChanges: Array<AgentChange>;
+  agentChanges: AgentChanges;
   configurationChanges: Array<ConfigurationChange>;
 };
 
 
 export type SubscriptionAgentChangesArgs = {
   query?: InputMaybe<Scalars['String']>;
+  seed?: InputMaybe<Scalars['Boolean']>;
   selector?: InputMaybe<Scalars['String']>;
 };
 
@@ -320,7 +328,7 @@ export type AgentsTableQueryVariables = Exact<{
 }>;
 
 
-export type AgentsTableQuery = { __typename?: 'Query', agents: { __typename?: 'Agents', query?: string | null, agents: Array<{ __typename?: 'Agent', id: string, architecture?: string | null, hostName?: string | null, labels?: any | null, platform?: string | null, version?: string | null, name: string, home?: string | null, operatingSystem?: string | null, macAddress?: string | null, type?: string | null, status: number, connectedAt?: any | null, disconnectedAt?: any | null, configurationResource?: { __typename?: 'Configuration', apiVersion: string, kind: string, metadata: { __typename?: 'Metadata', id: string, name: string }, spec: { __typename?: 'ConfigurationSpec', contentType?: string | null } } | null }>, suggestions?: Array<{ __typename?: 'Suggestion', query: string, label: string }> | null } };
+export type AgentsTableQuery = { __typename?: 'Query', agents: { __typename?: 'Agents', query?: string | null, agents: Array<{ __typename?: 'Agent', id: string, name: string, status: number, architecture?: string | null, labels?: any | null, platform?: string | null, operatingSystem?: string | null, connectedAt?: any | null, disconnectedAt?: any | null, configurationResource?: { __typename?: 'Configuration', metadata: { __typename?: 'Metadata', name: string } } | null }>, suggestions?: Array<{ __typename?: 'Suggestion', query: string, label: string }> | null } };
 
 export type GetDestinationTypeDisplayInfoQueryVariables = Exact<{
   name: Scalars['String'];
@@ -360,10 +368,11 @@ export type ConfigurationChangesSubscription = { __typename?: 'Subscription', co
 export type AgentChangesSubscriptionVariables = Exact<{
   selector?: InputMaybe<Scalars['String']>;
   query?: InputMaybe<Scalars['String']>;
+  seed?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
-export type AgentChangesSubscription = { __typename?: 'Subscription', agentChanges: Array<{ __typename?: 'AgentChange', changeType: AgentChangeType, agent: { __typename?: 'Agent', id: string, name: string, architecture?: string | null, operatingSystem?: string | null, labels?: any | null, hostName?: string | null, platform?: string | null, version?: string | null, macAddress?: string | null, home?: string | null, type?: string | null, status: number, connectedAt?: any | null, disconnectedAt?: any | null, configuration?: { __typename?: 'AgentConfiguration', Collector?: string | null } | null, configurationResource?: { __typename?: 'Configuration', apiVersion: string, kind: string, metadata: { __typename?: 'Metadata', id: string, name: string }, spec: { __typename?: 'ConfigurationSpec', contentType?: string | null } } | null } }> };
+export type AgentChangesSubscription = { __typename?: 'Subscription', agentChanges: { __typename?: 'AgentChanges', query?: string | null, agentChanges: Array<{ __typename?: 'AgentChange', changeType: AgentChangeType, agent: { __typename?: 'Agent', id: string, name: string, version?: string | null, operatingSystem?: string | null, labels?: any | null, platform?: string | null, status: number, configurationResource?: { __typename?: 'Configuration', apiVersion: string, kind: string, metadata: { __typename?: 'Metadata', id: string, name: string }, spec: { __typename?: 'ConfigurationSpec', contentType?: string | null } } | null } }>, suggestions?: Array<{ __typename?: 'Suggestion', query: string, label: string }> | null } };
 
 export type GetAgentAndConfigurationsQueryVariables = Exact<{
   agentId: Scalars['ID'];
@@ -426,28 +435,17 @@ export const AgentsTableDocument = gql`
   agents(selector: $selector, query: $query) {
     agents {
       id
+      name
+      status
       architecture
-      hostName
       labels
       platform
-      version
-      name
-      home
       operatingSystem
-      macAddress
-      type
-      status
       connectedAt
       disconnectedAt
       configurationResource {
-        apiVersion
-        kind
         metadata {
-          id
           name
-        }
-        spec {
-          contentType
         }
       }
     }
@@ -701,39 +699,36 @@ export function useConfigurationChangesSubscription(baseOptions?: Apollo.Subscri
 export type ConfigurationChangesSubscriptionHookResult = ReturnType<typeof useConfigurationChangesSubscription>;
 export type ConfigurationChangesSubscriptionResult = Apollo.SubscriptionResult<ConfigurationChangesSubscription>;
 export const AgentChangesDocument = gql`
-    subscription AgentChanges($selector: String, $query: String) {
-  agentChanges(selector: $selector, query: $query) {
-    agent {
-      id
-      name
-      architecture
-      operatingSystem
-      labels
-      hostName
-      platform
-      version
-      macAddress
-      home
-      type
-      status
-      connectedAt
-      disconnectedAt
-      configuration {
-        Collector
-      }
-      configurationResource {
-        apiVersion
-        kind
-        metadata {
-          id
-          name
-        }
-        spec {
-          contentType
+    subscription AgentChanges($selector: String, $query: String, $seed: Boolean) {
+  agentChanges(selector: $selector, query: $query, seed: $seed) {
+    agentChanges {
+      agent {
+        id
+        name
+        version
+        operatingSystem
+        labels
+        platform
+        status
+        configurationResource {
+          apiVersion
+          kind
+          metadata {
+            id
+            name
+          }
+          spec {
+            contentType
+          }
         }
       }
+      changeType
     }
-    changeType
+    query
+    suggestions {
+      query
+      label
+    }
   }
 }
     `;
@@ -752,6 +747,7 @@ export const AgentChangesDocument = gql`
  *   variables: {
  *      selector: // value for 'selector'
  *      query: // value for 'query'
+ *      seed: // value for 'seed'
  *   },
  * });
  */

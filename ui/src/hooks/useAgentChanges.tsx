@@ -4,39 +4,40 @@ import { AgentChangesContext } from "../contexts/AgentChanges";
 import { AgentChange } from "../graphql/generated";
 
 gql`
-  subscription AgentChanges($selector: String, $query: String) {
-    agentChanges(selector: $selector, query: $query) {
-      agent {
-        id
-        name
-        architecture
-        operatingSystem
-        labels
-        hostName
-        platform
-        version
-        macAddress
-        home
-        type
-        status
-        connectedAt
-        disconnectedAt
-        configuration {
-          Collector
-        }
-        configurationResource {
-          apiVersion
-          kind
-          metadata {
-            id
-            name
-          }
-          spec {
-            contentType
+  subscription AgentChanges($selector: String, $query: String, $seed: Boolean) {
+    agentChanges(selector: $selector, query: $query, seed: $seed) {
+      agentChanges {
+        agent {
+          id
+          name
+          version
+          operatingSystem
+          labels
+          platform
+
+          status
+
+          configurationResource {
+            apiVersion
+            kind
+            metadata {
+              id
+              name
+            }
+            spec {
+              contentType
+            }
           }
         }
+        changeType
       }
-      changeType
+
+      query
+
+      suggestions {
+        query
+        label
+      }
     }
   }
 `;

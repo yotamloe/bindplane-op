@@ -10,7 +10,11 @@ import {
 } from "@mui/x-data-grid";
 import React, { memo } from "react";
 import { renderAgentLabels, renderAgentStatus } from "../utils";
-import { Agent } from "../../../graphql/generated";
+import {
+  Agent,
+  AgentChangesSubscription,
+  AgentChangeType,
+} from "../../../graphql/generated";
 import { Link } from "react-router-dom";
 import { AgentStatus } from "../../../types/agents";
 import { isFunction } from "lodash";
@@ -26,13 +30,17 @@ export enum AgentsTableField {
   LABELS = "labels",
 }
 
+export type AgentsTableChange =  AgentChangesSubscription["agentChanges"]["agentChanges"][0];
+export type AgentsTableRow =
+  AgentChangesSubscription["agentChanges"]["agentChanges"][0]["agent"];
+
 interface AgentsDataGridProps {
   onAgentsSelected?: (agentIds: GridSelectionModel) => void;
   isRowSelectable?: (params: GridRowParams<Agent>) => boolean;
   density?: GridDensityTypes;
   loading: boolean;
   minHeight?: string;
-  agents?: Agent[];
+  agents?: AgentsTableRow[];
   columnFields?: AgentsTableField[];
 }
 
