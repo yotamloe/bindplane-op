@@ -326,12 +326,7 @@ func (p ParameterDefinition) validateYamlValue(fieldType parameterFieldType, val
 
 	decoder := yaml.NewDecoder(bytes.NewBufferString(str))
 	into := make(map[string]any)
-	err := decoder.Decode(into)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return decoder.Decode(into)
 }
 
 func (p ParameterDefinition) validateMapValue(fieldType parameterFieldType, value any) error {
