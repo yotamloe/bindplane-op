@@ -200,6 +200,11 @@ const AgentsTableComponent: React.FC<Props> = ({
   );
 
   function onQueryChange(query: string) {
+    setData({
+      agents: data.agents,
+      suggestions: [],
+      query: data.query,
+    });
     debouncedSetSubQuery(query);
   }
 
