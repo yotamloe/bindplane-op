@@ -134,7 +134,7 @@ func (p ParameterDefinition) validateValidValues() error {
 	case enumType, multiEnumType:
 		if len(p.ValidValues) == 0 {
 			return errors.NewError(
-				"parameter of type 'enum' must have 'validValues' specified",
+				"parameter of type 'enum' or 'multi-enum' must have 'validValues' specified",
 				"specify an array that includes one or more valid values",
 			)
 		}
@@ -284,7 +284,6 @@ func (p ParameterDefinition) validateEnumValue(fieldType parameterFieldType, val
 
 func (p ParameterDefinition) validateMultiEnumValue(fieldType parameterFieldType, value any) error {
 	def, ok := value.([]any)
-	fmt.Printf("value: %v, type: %T\n, ok: %t", def, def, ok)
 	if !ok {
 		return errors.NewError(
 			fmt.Sprintf("%s value for multiple enumerated parameter '%s'", fieldType, p.Name),
@@ -325,14 +324,13 @@ func (p ParameterDefinition) validateYamlValue(fieldType parameterFieldType, val
 		)
 	}
 
-	blah := bytes.NewBufferString(str)
-	decoder := yaml.NewDecoder(blah)
-	two := make(map[string]any)
-	err := decoder.Decode(two)
+	decoder := yaml.NewDecoder(bytes.NewBufferString(str))
+	into := make(map[string]any)
+	err := decoder.Decode(into)
 	if err != nil {
 		return err
 	}
-	// TODO
+
 	return nil
 }
 
