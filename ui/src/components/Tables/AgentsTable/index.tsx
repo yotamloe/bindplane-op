@@ -91,6 +91,12 @@ function applyAgentChanges(
 
 let total = 0;
 
+interface AgentsTableData {
+  agents: AgentsTableRow[];
+  suggestions?: Suggestion[];
+  query: string;
+}
+
 const AgentsTableComponent: React.FC<Props> = ({
   onAgentsSelected,
   isRowSelectable,
@@ -106,8 +112,11 @@ const AgentsTableComponent: React.FC<Props> = ({
   //   nextFetchPolicy: "cache-only",
   // });
 
-  const [agents, setAgents] = useState<AgentsTableRow[]>([]);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [data, setData] = useState<AgentsTableData>({
+    agents: [],
+    suggestions: [],
+    query: "",
+  });
   const [subQuery, setSubQuery] = useState<string>(initQuery);
 
   const { loading } = useAgentChangesSubscription({
@@ -121,12 +130,23 @@ const AgentsTableComponent: React.FC<Props> = ({
 
       const query = subscriptionData.data?.agentChanges.query;
       const changes = subscriptionData.data?.agentChanges.agentChanges;
-      const suggestions = subscriptionData.data?.agentChanges.suggestions;
-      if (changes != null && query === subQuery) {
-        setAgents(applyAgentChanges(changes, agents));
-      }
-      if (suggestions != null) {
-        setSuggestions(suggestions);
+      if (changes != null) {
+        if (query === data.query) {
+          // query is the same, accumulate results
+          setData({
+            agents: applyAgentChanges(changes, data.agents),
+            suggestions: data.suggestions,
+            query: data.query,
+          });
+        } else {
+          // query changed, start over
+          const suggestions = subscriptionData.data?.agentChanges.suggestions;
+          setData({
+            agents: applyAgentChanges(changes, []),
+            suggestions: suggestions || [],
+            query: query || "",
+          });
+        }
       }
     },
   });
@@ -187,7 +207,7 @@ const AgentsTableComponent: React.FC<Props> = ({
     <>
       <SearchBar
         filterOptions={filterOptions}
-        suggestions={suggestions}
+        suggestions={data.suggestions}
         onQueryChange={onQueryChange}
         suggestionQuery={subQuery}
         initialQuery={initQuery}
@@ -199,7 +219,7 @@ const AgentsTableComponent: React.FC<Props> = ({
         density={density}
         minHeight={minHeight}
         loading={loading}
-        agents={agents}
+        agents={data.agents}
         columnFields={columnFields}
       />
     </>
