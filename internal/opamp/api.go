@@ -17,6 +17,7 @@ package opamp
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"net/http"
 	"strings"
@@ -336,6 +337,7 @@ func (s *opampServer) ConfigureLiveTail(ctx context.Context, agentID string, con
 		s.logger.Info("ConfigureLiveTail", zap.String("livetail.yaml", string(livetail)))
 		return s.send(context.Background(), conn, &protobufs.ServerToAgent{
 			RemoteConfig: &protobufs.AgentRemoteConfig{
+				ConfigHash: computeLivetailHash(livetail),
 				Config: &protobufs.AgentConfigMap{
 					ConfigMap: map[string]*protobufs.AgentConfigFile{
 						"livetail.yaml": {
@@ -348,6 +350,14 @@ func (s *opampServer) ConfigureLiveTail(ctx context.Context, agentID string, con
 		})
 	}
 	return nil
+}
+
+func computeLivetailHash(contents ...[]byte) []byte {
+	h := sha256.New()
+	for _, bytes := range contents {
+		h.Write(bytes)
+	}
+	return h.Sum(nil)
 }
 
 func (s *opampServer) send(ctx context.Context, conn opamp.Connection, msg *protobufs.ServerToAgent) error {

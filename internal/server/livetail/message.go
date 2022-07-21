@@ -21,6 +21,6 @@ import (
 // Message contains Live records from an Agent
 type Message struct {
 	Sessions     []string          `json:"sessions"`
-	Records      []any             `json:"records"`
+	Record       any               `json:"record"`
 	PipelineType otel.PipelineType `json:"pipelineType"`
 }
