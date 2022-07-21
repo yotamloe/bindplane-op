@@ -308,6 +308,8 @@ func (r *subscriptionResolver) Livetail(ctx context.Context, agentIDs []string, 
 		return nil, fmt.Errorf("LiveTail not enabled")
 	}
 
+	r.bindplane.Logger().Info("Livetail", zap.Strings("agentIDs", agentIDs), zap.Strings("filters", filters))
+
 	// TODO: add merge
 	channel, err := server.RelayLiveTailUntilDone(ctx, r.bindplane.Relayer(), agentIDs, filters, func(m *livetail.Message) []*model1.LiveTailMessage {
 		return []*model1.LiveTailMessage{
