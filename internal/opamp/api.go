@@ -337,7 +337,7 @@ func (s *opampServer) ConfigureLiveTail(ctx context.Context, agentID string, con
 			RemoteConfig: &protobufs.AgentRemoteConfig{
 				Config: &protobufs.AgentConfigMap{
 					ConfigMap: map[string]*protobufs.AgentConfigFile{
-						"livetail": {
+						"livetail.yaml": {
 							Body:        livetail,
 							ContentType: "text/yaml",
 						},
