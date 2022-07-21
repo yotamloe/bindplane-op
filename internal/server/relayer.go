@@ -141,11 +141,13 @@ type relayer struct {
 func NewRelayer(bindplane BindPlane, logger *zap.Logger) Relayer {
 	endpoint := fmt.Sprintf("%s/v1/livetail", bindplane.Config().WebsocketURL())
 	return &relayer{
-		manager:       bindplane.Manager(),
-		endpoint:      endpoint,
-		subscriptions: subscriptions{},
-		messages:      eventbus.NewSource[*livetail.Message](),
-		logger:        logger.Named("Relayer"),
+		manager:  bindplane.Manager(),
+		endpoint: endpoint,
+		subscriptions: subscriptions{
+			configurations: map[string]*livetail.Configuration{},
+		},
+		messages: eventbus.NewSource[*livetail.Message](),
+		logger:   logger.Named("Relayer"),
 	}
 }
 
@@ -184,15 +186,15 @@ func (r *relayer) RemoveSubscription(ctx context.Context, sessionID string) {
 		hadSessionID := false
 		c := r.subscriptions.upsertSubscription(agentID, func(config *livetail.Configuration) {
 			config.Endpoint = r.endpoint
-			var sessions []livetail.Session
-			for _, session := range sessions {
+			var newSessions []livetail.Session
+			for _, session := range config.Sessions {
 				if session.ID == sessionID {
 					hadSessionID = true
 					continue
 				}
-				sessions = append(sessions, session)
+				newSessions = append(newSessions, session)
 			}
-			config.Sessions = sessions
+			config.Sessions = newSessions
 		})
 		if hadSessionID {
 			r.manager.ConfigureLiveTail(ctx, agentID, c)
@@ -233,6 +235,7 @@ func (s *subscriptions) upsertSubscription(agentID string, updater func(*livetai
 	c, ok := s.configurations[agentID]
 	if !ok {
 		c = &livetail.Configuration{}
+		s.configurations[agentID] = c
 	}
 	updater(c)
 	if c.Empty() {
