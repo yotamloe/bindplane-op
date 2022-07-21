@@ -5,8 +5,10 @@ package mocks
 import (
 	context "context"
 
-	model "github.com/observiq/bindplane-op/model"
+	livetail "github.com/observiq/bindplane-op/internal/server/livetail"
 	mock "github.com/stretchr/testify/mock"
+
+	model "github.com/observiq/bindplane-op/model"
 
 	server "github.com/observiq/bindplane-op/internal/server"
 
@@ -64,6 +66,20 @@ func (_m *Manager) AgentUpdates(ctx context.Context, agent *model.Agent) (*serve
 	}
 
 	return r0, r1
+}
+
+// ConfigureLiveTail provides a mock function with given fields: ctx, agentID, configuration
+func (_m *Manager) ConfigureLiveTail(ctx context.Context, agentID string, configuration livetail.Configuration) error {
+	ret := _m.Called(ctx, agentID, configuration)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, livetail.Configuration) error); ok {
+		r0 = rf(ctx, agentID, configuration)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // EnableProtocol provides a mock function with given fields: _a0

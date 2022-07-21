@@ -28,6 +28,10 @@ type BindPlane interface {
 	Store() store.Store
 	// Manager TODO(doc)
 	Manager() Manager
+	// Relayer enables Live messages to flow from Agents to GraphQL subscriptions
+	Relayer() Relayer
+	// SetRelayer sets the relayer instance, enabling LiveTail
+	SetRelayer(Relayer)
 	// Versions TODO(doc)
 	Versions() agent.Versions
 	// Config TODO(doc)
@@ -60,11 +64,20 @@ type bindplane struct {
 	manager  Manager
 	logger   *zap.Logger
 	versions agent.Versions
+	relayer  Relayer
 }
 
 // Manager TODO(doc)
 func (s *bindplane) Manager() Manager {
 	return s.manager
+}
+
+func (s *bindplane) SetRelayer(relayer Relayer) {
+	s.relayer = relayer
+}
+
+func (s *bindplane) Relayer() Relayer {
+	return s.relayer
 }
 
 // Logger TODO(doc)

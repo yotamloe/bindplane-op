@@ -30,8 +30,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
+	"gopkg.in/yaml.v3"
 
 	"github.com/observiq/bindplane-op/internal/server"
+	"github.com/observiq/bindplane-op/internal/server/livetail"
 	"github.com/observiq/bindplane-op/model"
 	"github.com/observiq/bindplane-op/model/observiq"
 )
@@ -319,6 +321,31 @@ func (s *opampServer) SendHeartbeat(agentID string) error {
 	conn := s.connections.connection(agentID)
 	if conn != nil {
 		return s.send(context.Background(), conn, &protobufs.ServerToAgent{})
+	}
+	return nil
+}
+
+// ConfigureLiveTail sends "livetail" configuration to the specified agent
+func (s *opampServer) ConfigureLiveTail(ctx context.Context, agentID string, configuration livetail.Configuration) error {
+	conn := s.connections.connection(agentID)
+	if conn != nil {
+		livetail, err := yaml.Marshal(configuration)
+		if err != nil {
+			return err
+		}
+		s.logger.Info("ConfigureLiveTail", zap.String("livetail.yaml", string(livetail)))
+		return s.send(context.Background(), conn, &protobufs.ServerToAgent{
+			RemoteConfig: &protobufs.AgentRemoteConfig{
+				Config: &protobufs.AgentConfigMap{
+					ConfigMap: map[string]*protobufs.AgentConfigFile{
+						"livetail.yaml": {
+							Body:        livetail,
+							ContentType: "text/yaml",
+						},
+					},
+				},
+			},
+		})
 	}
 	return nil
 }

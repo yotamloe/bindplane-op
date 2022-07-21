@@ -48,7 +48,7 @@ type Source[T any] interface {
 	// SubscribeUntilDone adds a subscriber to the source and automatically unsubscribes when the context is done. If the
 	// context is nil, the unsubscribe function must be called to unsubscribe. Instead of using this method to subscribe
 	// to a source, use one of the eventbus.Subscribe functions to receive a channel of events.
-	SubscribeUntilDone(context.Context, Subscriber[T]) UnsubscribeFunc
+	SubscribeUntilDone(ctx context.Context, subscriber Subscriber[T], onUnsubscribe func()) UnsubscribeFunc
 
 	// Subscribers returns the current number of subscribers
 	Subscribers() int
@@ -190,7 +190,8 @@ func Subscribe[T any](bus Source[T], options ...SubscriptionOption[T]) (<-chan T
 // function. It automatically unsubscribes when the context is done.
 func SubscribeUntilDone[T any](ctx context.Context, bus Source[T], options ...SubscriptionOption[T]) (<-chan T, UnsubscribeFunc) {
 	subscription := newSubscription(options)
-	unsubscribe := bus.SubscribeUntilDone(ctx, subscription)
+	opts := makeSubscriptionOptions(options)
+	unsubscribe := bus.SubscribeUntilDone(ctx, subscription, opts.unsubscribeHook)
 	return subscription.Channel(), unsubscribe
 }
 
@@ -202,12 +203,12 @@ func SubscribeWithFilter[T, R any](bus Source[T], filter SubscriptionFilter[T, R
 // SubscribeWithFilterUntilDone TODO
 func SubscribeWithFilterUntilDone[T, R any](ctx context.Context, source Source[T], filter SubscriptionFilter[T, R], options ...SubscriptionOption[R]) (<-chan R, UnsubscribeFunc) {
 	subscription := newFilterSubscription(filter, options)
-	unsubscribe := source.SubscribeUntilDone(ctx, subscription)
+	unsubscribe := source.SubscribeUntilDone(ctx, subscription, nil)
 	return subscription.FilterChannel(), unsubscribe
 }
 
 // SubscribeUntilDone adds the subscriber and returns a cancel function.
-func (s *source[T]) SubscribeUntilDone(ctx context.Context, subscriber Subscriber[T]) UnsubscribeFunc {
+func (s *source[T]) SubscribeUntilDone(ctx context.Context, subscriber Subscriber[T], unsubscribeHook func()) UnsubscribeFunc {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
@@ -220,6 +221,9 @@ func (s *source[T]) SubscribeUntilDone(ctx context.Context, subscriber Subscribe
 		defer s.mtx.Unlock()
 		delete(s.subscribers, subscriber)
 		subscriber.Close()
+		if unsubscribeHook != nil {
+			unsubscribeHook()
+		}
 	}
 
 	// wait for context done and auto-unsubscribe

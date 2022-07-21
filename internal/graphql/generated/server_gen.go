@@ -1611,7 +1611,7 @@ enum LiveTailRecordType {
 }
 
 type LiveTailMessage {
-  type: LiveTailRecordType
+  type: LiveTailRecordType!
   records: [Any!]!
 }
 
@@ -4494,11 +4494,14 @@ func (ec *executionContext) _LiveTailMessage_type(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*model1.LiveTailRecordType)
+	res := resTmp.(model1.LiveTailRecordType)
 	fc.Result = res
-	return ec.marshalOLiveTailRecordType2ᚖgithubᚗcomᚋobserviqᚋbindplaneᚑopᚋinternalᚋgraphqlᚋmodelᚐLiveTailRecordType(ctx, field.Selections, res)
+	return ec.marshalNLiveTailRecordType2githubᚗcomᚋobserviqᚋbindplaneᚑopᚋinternalᚋgraphqlᚋmodelᚐLiveTailRecordType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_LiveTailMessage_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10618,6 +10621,9 @@ func (ec *executionContext) _LiveTailMessage(ctx context.Context, sel ast.Select
 
 			out.Values[i] = ec._LiveTailMessage_type(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "records":
 
 			out.Values[i] = ec._LiveTailMessage_records(ctx, field, obj)
@@ -12602,6 +12608,16 @@ func (ec *executionContext) marshalNLiveTailMessage2ᚖgithubᚗcomᚋobserviq�
 	return ec._LiveTailMessage(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNLiveTailRecordType2githubᚗcomᚋobserviqᚋbindplaneᚑopᚋinternalᚋgraphqlᚋmodelᚐLiveTailRecordType(ctx context.Context, v interface{}) (model1.LiveTailRecordType, error) {
+	var res model1.LiveTailRecordType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLiveTailRecordType2githubᚗcomᚋobserviqᚋbindplaneᚑopᚋinternalᚋgraphqlᚋmodelᚐLiveTailRecordType(ctx context.Context, sel ast.SelectionSet, v model1.LiveTailRecordType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNMetadata2githubᚗcomᚋobserviqᚋbindplaneᚑopᚋmodelᚐMetadata(ctx context.Context, sel ast.SelectionSet, v model.Metadata) graphql.Marshaler {
 	return ec._Metadata(ctx, sel, &v)
 }
@@ -13376,22 +13392,6 @@ func (ec *executionContext) marshalODestinationType2ᚖgithubᚗcomᚋobserviq�
 		return graphql.Null
 	}
 	return ec._DestinationType(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOLiveTailRecordType2ᚖgithubᚗcomᚋobserviqᚋbindplaneᚑopᚋinternalᚋgraphqlᚋmodelᚐLiveTailRecordType(ctx context.Context, v interface{}) (*model1.LiveTailRecordType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model1.LiveTailRecordType)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOLiveTailRecordType2ᚖgithubᚗcomᚋobserviqᚋbindplaneᚑopᚋinternalᚋgraphqlᚋmodelᚐLiveTailRecordType(ctx context.Context, sel ast.SelectionSet, v *model1.LiveTailRecordType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {

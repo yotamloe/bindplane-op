@@ -25,6 +25,7 @@ import (
 
 	"github.com/observiq/bindplane-op/common"
 	"github.com/observiq/bindplane-op/internal/eventbus"
+	"github.com/observiq/bindplane-op/internal/server/livetail"
 	"github.com/observiq/bindplane-op/internal/store"
 	"github.com/observiq/bindplane-op/model"
 )
@@ -56,6 +57,8 @@ type Manager interface {
 	VerifySecretKey(ctx context.Context, secretKey string) bool
 	// ResourceStore provides access to the store to render configurations
 	ResourceStore() model.ResourceStore
+	// ConfigureLiveTail sends "livetail" configuration to the specified agent
+	ConfigureLiveTail(ctx context.Context, agentID string, configuration livetail.Configuration) error
 }
 
 // ----------------------------------------------------------------------
@@ -301,6 +304,23 @@ func (m *manager) VerifySecretKey(ctx context.Context, secretKey string) bool {
 func (m *manager) ResourceStore() model.ResourceStore {
 	return m.store
 }
+
+// ConfigureLiveTail sends "livetail" configuration to the specified agent
+func (m *manager) ConfigureLiveTail(ctx context.Context, agentID string, configuration livetail.Configuration) error {
+	ctx, span := tracer.Start(context.TODO(), "manager/ConfigureLiveTail")
+	defer span.End()
+
+	for _, p := range m.protocols {
+		err := p.ConfigureLiveTail(ctx, agentID, configuration)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ----------------------------------------------------------------------
 
 // handleAgentCleanup removes disconnected agents from the store.
 func (m *manager) handleAgentCleanup() {

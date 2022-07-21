@@ -17,6 +17,7 @@ package server
 import (
 	"context"
 
+	"github.com/observiq/bindplane-op/internal/server/livetail"
 	"github.com/observiq/bindplane-op/model"
 )
 
@@ -49,6 +50,9 @@ type Protocol interface {
 
 	// SendHeartbeat sends a heartbeat to the agent to keep the websocket open
 	SendHeartbeat(agentID string) error
+
+	// ConfigureLiveTail sends "livetail" configuration to the specified agent
+	ConfigureLiveTail(ctx context.Context, agentID string, configuration livetail.Configuration) error
 }
 
 // Empty returns true if the updates are empty because no changes need to be made to the agent
