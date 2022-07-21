@@ -138,7 +138,7 @@ export enum EventType {
 export type LiveTailMessage = {
   __typename?: 'LiveTailMessage';
   records: Array<Scalars['Any']>;
-  type?: Maybe<LiveTailRecordType>;
+  type: LiveTailRecordType;
 };
 
 export enum LiveTailRecordType {
@@ -370,7 +370,7 @@ export type LivetailSubscriptionVariables = Exact<{
 }>;
 
 
-export type LivetailSubscription = { __typename?: 'Subscription', livetail: Array<{ __typename?: 'LiveTailMessage', type?: LiveTailRecordType | null, records: Array<any> }> };
+export type LivetailSubscription = { __typename?: 'Subscription', livetail: Array<{ __typename?: 'LiveTailMessage', type: LiveTailRecordType, records: Array<any> }> };
 
 export type AgentsTableQueryVariables = Exact<{
   selector?: InputMaybe<Scalars['String']>;
