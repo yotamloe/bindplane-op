@@ -73,7 +73,7 @@ export const LiveTailConsole: React.FC<Props> = ({ ids }) => {
   const consoleRef = useRef<HTMLDivElement | null>(null);
   const lastRowRef = useRef<HTMLDivElement | null>(null);
 
-  useLivetailSubscription({
+  const { loading, error } = useLivetailSubscription({
     variables: { ids, filters },
     onSubscriptionData: ({
       subscriptionData,
@@ -88,6 +88,9 @@ export const LiveTailConsole: React.FC<Props> = ({ ids }) => {
       setRows((prev) => [...prev, ...records]);
     },
   });
+  if (error != null) {
+    console.error(error);
+  }
 
   useEffect(() => {
     if (consoleRef.current) {

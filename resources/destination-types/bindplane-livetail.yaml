@@ -16,3 +16,4 @@ spec:
     exporters: |
       - bindplane:
           endpoint: {{ .endpoint }}
+          live_tail: ./livetail.yaml

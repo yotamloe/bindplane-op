@@ -315,7 +315,7 @@ func (r *subscriptionResolver) Livetail(ctx context.Context, agentIDs []string, 
 		return []*model1.LiveTailMessage{
 			{
 				Type:    model1.LiveTailRecordType(m.PipelineType),
-				Records: m.Records,
+				Records: []any{m.Record},
 			},
 		}
 	})
