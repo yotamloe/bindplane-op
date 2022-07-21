@@ -135,6 +135,18 @@ export enum EventType {
   Update = 'UPDATE'
 }
 
+export type LiveTailMessage = {
+  __typename?: 'LiveTailMessage';
+  records: Array<Scalars['Any']>;
+  type?: Maybe<LiveTailRecordType>;
+};
+
+export enum LiveTailRecordType {
+  Log = 'log',
+  Metric = 'metric',
+  Trace = 'trace'
+}
+
 export type Metadata = {
   __typename?: 'Metadata';
   description?: Maybe<Scalars['String']>;
@@ -325,6 +337,7 @@ export type Subscription = {
   __typename?: 'Subscription';
   agentChanges: Array<AgentChange>;
   configurationChanges: Array<ConfigurationChange>;
+  livetail: Array<LiveTailMessage>;
 };
 
 
@@ -337,6 +350,12 @@ export type SubscriptionAgentChangesArgs = {
 export type SubscriptionConfigurationChangesArgs = {
   query?: InputMaybe<Scalars['String']>;
   selector?: InputMaybe<Scalars['String']>;
+};
+
+
+export type SubscriptionLivetailArgs = {
+  agentIds: Array<Scalars['String']>;
+  filters: Array<Scalars['String']>;
 };
 
 export type Suggestion = {
