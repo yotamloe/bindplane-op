@@ -57,6 +57,10 @@
   font-family: typography.$font-family-monospace;
 }
 
+.ch {
+  flex: 0 0 20px;
+}
+
 .dt {
   flex: 0 0 180px;
 }
@@ -67,4 +71,28 @@
 
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.table-container {
+  padding: 25px 100px;
+}
+
+.key {
+  width: 150px;
+}
+
+.value {
+  width: auto;
+}
+
+.card {
+  border: none;
+  border-bottom: 1px solid colors.$gray;
+}
+
+.chevron {
+  width: 15px;
+  margin: 0 2px;
+
+  cursor: pointer;
 }
