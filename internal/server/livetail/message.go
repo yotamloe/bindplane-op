@@ -22,5 +22,5 @@ import (
 type Message struct {
 	Sessions     []string          `json:"sessions"`
 	Record       any               `json:"record"`
-	PipelineType otel.PipelineType `json:"pipelineType"`
+	PipelineType otel.PipelineType `json:"type"`
 }

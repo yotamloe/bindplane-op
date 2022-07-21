@@ -104,6 +104,8 @@ func (s *liveTailServer) handleWSConnection(wsConn *websocket.Conn) {
 			continue
 		}
 
+		s.logger.Info("OnMessage", zap.String("message", string(bytes)))
+
 		// Decode WebSocket message as a LiveTail message.
 		var message livetail.Message
 		err = json.Unmarshal(bytes, &message)
