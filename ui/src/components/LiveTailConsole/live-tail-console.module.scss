@@ -1,0 +1,56 @@
+@use '../../styles/colors';
+@use '../../styles/typography';
+
+.live-tail-page {
+  display: grid;
+  height: 100%;
+  grid-template-rows: auto min-content;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+
+  display: flex;
+
+  font-family: typography.$font-family-montserrat;
+  font-size: rem-calc(12px);
+  text-transform: uppercase;
+  letter-spacing: rem-calc(1px);
+
+  background-color: colors.$white;
+  border-bottom: 1px solid colors.$gray;
+  border-radius: 4px 4px 0 0;
+
+  div {
+    padding: 4px 8px;
+    border-right: 1px solid colors.$gray;
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  .col-ex {
+    padding: 0;
+    border-right: 0;
+  }
+}
+
+.container {
+  height: calc(100vh - 200px);
+}
+
+.console {
+  height: 100%;
+  width: 100%;
+
+  background-color: colors.$white;
+
+  border: 1px solid colors.$gray;
+  border-radius: 4px;
+}
+
+.chip {
+  font-family: typography.$font-family-monospace;
+}
