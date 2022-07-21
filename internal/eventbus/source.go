@@ -203,7 +203,8 @@ func SubscribeWithFilter[T, R any](bus Source[T], filter SubscriptionFilter[T, R
 // SubscribeWithFilterUntilDone TODO
 func SubscribeWithFilterUntilDone[T, R any](ctx context.Context, source Source[T], filter SubscriptionFilter[T, R], options ...SubscriptionOption[R]) (<-chan R, UnsubscribeFunc) {
 	subscription := newFilterSubscription(filter, options)
-	unsubscribe := source.SubscribeUntilDone(ctx, subscription, nil)
+	opts := makeSubscriptionOptions(options)
+	unsubscribe := source.SubscribeUntilDone(ctx, subscription, opts.unsubscribeHook)
 	return subscription.FilterChannel(), unsubscribe
 }
 
