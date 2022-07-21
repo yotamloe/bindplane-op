@@ -20,6 +20,7 @@ type subscriptionOptions[T any] struct {
 	channel           chan T
 	unbounded         bool
 	unboundedInterval time.Duration
+	unsubscribeHook   func()
 }
 
 func makeSubscriptionOptions[T any](options []SubscriptionOption[T]) subscriptionOptions[T] {
@@ -47,5 +48,12 @@ func WithUnboundedChannel[T any](interval time.Duration) SubscriptionOption[T] {
 	return func(opts *subscriptionOptions[T]) {
 		opts.unbounded = true
 		opts.unboundedInterval = interval
+	}
+}
+
+// WithUnsubscribeHook specifies a function to be called after unsubscribe
+func WithUnsubscribeHook[T any](unsubscribeHook func()) SubscriptionOption[T] {
+	return func(opts *subscriptionOptions[T]) {
+		opts.unsubscribeHook = unsubscribeHook
 	}
 }

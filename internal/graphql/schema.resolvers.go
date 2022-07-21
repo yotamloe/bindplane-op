@@ -26,12 +26,13 @@ import (
 	"github.com/observiq/bindplane-op/internal/eventbus"
 	"github.com/observiq/bindplane-op/internal/graphql/generated"
 	model1 "github.com/observiq/bindplane-op/internal/graphql/model"
+	"github.com/observiq/bindplane-op/internal/server"
+	"github.com/observiq/bindplane-op/internal/server/livetail"
 	"github.com/observiq/bindplane-op/internal/store"
 	"github.com/observiq/bindplane-op/model"
 	"go.uber.org/zap"
 )
 
-// Labels is the resolver for the labels field.
 func (r *agentResolver) Labels(ctx context.Context, obj *model.Agent) (map[string]interface{}, error) {
 	labels := map[string]interface{}{}
 	for k := range obj.Labels.Set {
@@ -40,12 +41,10 @@ func (r *agentResolver) Labels(ctx context.Context, obj *model.Agent) (map[strin
 	return labels, nil
 }
 
-// Status is the resolver for the status field.
 func (r *agentResolver) Status(ctx context.Context, obj *model.Agent) (int, error) {
 	return int(obj.Status), nil
 }
 
-// Configuration is the resolver for the configuration field.
 func (r *agentResolver) Configuration(ctx context.Context, obj *model.Agent) (*model1.AgentConfiguration, error) {
 	ac := &model1.AgentConfiguration{}
 	if err := mapstructure.Decode(obj.Configuration, ac); err != nil {
@@ -55,12 +54,10 @@ func (r *agentResolver) Configuration(ctx context.Context, obj *model.Agent) (*m
 	return ac, nil
 }
 
-// ConfigurationResource is the resolver for the configurationResource field.
 func (r *agentResolver) ConfigurationResource(ctx context.Context, obj *model.Agent) (*model.Configuration, error) {
 	return r.bindplane.Store().AgentConfiguration(obj.ID)
 }
 
-// MatchLabels is the resolver for the matchLabels field.
 func (r *agentSelectorResolver) MatchLabels(ctx context.Context, obj *model.AgentSelector) (map[string]interface{}, error) {
 	labels := map[string]interface{}{}
 	for k := range obj.MatchLabels {
@@ -69,22 +66,18 @@ func (r *agentSelectorResolver) MatchLabels(ctx context.Context, obj *model.Agen
 	return labels, nil
 }
 
-// Kind is the resolver for the kind field.
 func (r *configurationResolver) Kind(ctx context.Context, obj *model.Configuration) (string, error) {
 	return string(obj.GetKind()), nil
 }
 
-// Kind is the resolver for the kind field.
 func (r *destinationResolver) Kind(ctx context.Context, obj *model.Destination) (string, error) {
 	return string(obj.GetKind()), nil
 }
 
-// Kind is the resolver for the kind field.
 func (r *destinationTypeResolver) Kind(ctx context.Context, obj *model.DestinationType) (string, error) {
 	return string(obj.GetKind()), nil
 }
 
-// Labels is the resolver for the labels field.
 func (r *metadataResolver) Labels(ctx context.Context, obj *model.Metadata) (map[string]interface{}, error) {
 	labels := map[string]interface{}{}
 	for k := range obj.Labels.Set {
@@ -93,7 +86,6 @@ func (r *metadataResolver) Labels(ctx context.Context, obj *model.Metadata) (map
 	return labels, nil
 }
 
-// Type is the resolver for the type field.
 func (r *parameterDefinitionResolver) Type(ctx context.Context, obj *model.ParameterDefinition) (model1.ParameterType, error) {
 	switch obj.Type {
 	case "strings":
@@ -115,17 +107,14 @@ func (r *parameterDefinitionResolver) Type(ctx context.Context, obj *model.Param
 	}
 }
 
-// Kind is the resolver for the kind field.
 func (r *processorResolver) Kind(ctx context.Context, obj *model.Processor) (string, error) {
 	return string(obj.GetKind()), nil
 }
 
-// Kind is the resolver for the kind field.
 func (r *processorTypeResolver) Kind(ctx context.Context, obj *model.ProcessorType) (string, error) {
 	return string(obj.GetKind()), nil
 }
 
-// Agents is the resolver for the agents field.
 func (r *queryResolver) Agents(ctx context.Context, selector *string, query *string) (*model1.Agents, error) {
 	ctx, span := tracer.Start(ctx, "graphql/Agents")
 	defer span.End()
@@ -143,12 +132,10 @@ func (r *queryResolver) Agents(ctx context.Context, selector *string, query *str
 	}, nil
 }
 
-// Agent is the resolver for the agent field.
 func (r *queryResolver) Agent(ctx context.Context, id string) (*model.Agent, error) {
 	return r.Resolver.bindplane.Store().Agent(id)
 }
 
-// Configurations is the resolver for the configurations field.
 func (r *queryResolver) Configurations(ctx context.Context, selector *string, query *string) (*model1.Configurations, error) {
 	options, suggestions, err := r.queryOptionsAndSuggestions(selector, query, r.Resolver.bindplane.Store().ConfigurationIndex())
 	configurations, err := r.Resolver.bindplane.Store().Configurations(options...)
@@ -162,62 +149,50 @@ func (r *queryResolver) Configurations(ctx context.Context, selector *string, qu
 	}, nil
 }
 
-// Configuration is the resolver for the configuration field.
 func (r *queryResolver) Configuration(ctx context.Context, name string) (*model.Configuration, error) {
 	return r.Resolver.bindplane.Store().Configuration(name)
 }
 
-// Sources is the resolver for the sources field.
 func (r *queryResolver) Sources(ctx context.Context) ([]*model.Source, error) {
 	return r.Resolver.bindplane.Store().Sources()
 }
 
-// Source is the resolver for the source field.
 func (r *queryResolver) Source(ctx context.Context, name string) (*model.Source, error) {
 	return r.Resolver.bindplane.Store().Source(name)
 }
 
-// SourceTypes is the resolver for the sourceTypes field.
 func (r *queryResolver) SourceTypes(ctx context.Context) ([]*model.SourceType, error) {
 	return r.Resolver.bindplane.Store().SourceTypes()
 }
 
-// SourceType is the resolver for the sourceType field.
 func (r *queryResolver) SourceType(ctx context.Context, name string) (*model.SourceType, error) {
 	return r.Resolver.bindplane.Store().SourceType(name)
 }
 
-// Processors is the resolver for the processors field.
 func (r *queryResolver) Processors(ctx context.Context) ([]*model.Processor, error) {
 	return r.Resolver.bindplane.Store().Processors()
 }
 
-// Processor is the resolver for the processor field.
 func (r *queryResolver) Processor(ctx context.Context, name string) (*model.Processor, error) {
 	return r.Resolver.bindplane.Store().Processor(name)
 }
 
-// ProcessorTypes is the resolver for the processorTypes field.
 func (r *queryResolver) ProcessorTypes(ctx context.Context) ([]*model.ProcessorType, error) {
 	return r.Resolver.bindplane.Store().ProcessorTypes()
 }
 
-// ProcessorType is the resolver for the processorType field.
 func (r *queryResolver) ProcessorType(ctx context.Context, name string) (*model.ProcessorType, error) {
 	return r.Resolver.bindplane.Store().ProcessorType(name)
 }
 
-// Destinations is the resolver for the destinations field.
 func (r *queryResolver) Destinations(ctx context.Context) ([]*model.Destination, error) {
 	return r.Resolver.bindplane.Store().Destinations()
 }
 
-// Destination is the resolver for the destination field.
 func (r *queryResolver) Destination(ctx context.Context, name string) (*model.Destination, error) {
 	return r.Resolver.bindplane.Store().Destination(name)
 }
 
-// DestinationWithType is the resolver for the destinationWithType field.
 func (r *queryResolver) DestinationWithType(ctx context.Context, name string) (*model1.DestinationWithType, error) {
 	resp := &model1.DestinationWithType{}
 
@@ -241,17 +216,14 @@ func (r *queryResolver) DestinationWithType(ctx context.Context, name string) (*
 	}, nil
 }
 
-// DestinationTypes is the resolver for the destinationTypes field.
 func (r *queryResolver) DestinationTypes(ctx context.Context) ([]*model.DestinationType, error) {
 	return r.Resolver.bindplane.Store().DestinationTypes()
 }
 
-// DestinationType is the resolver for the destinationType field.
 func (r *queryResolver) DestinationType(ctx context.Context, name string) (*model.DestinationType, error) {
 	return r.Resolver.bindplane.Store().DestinationType(name)
 }
 
-// Components is the resolver for the components field.
 func (r *queryResolver) Components(ctx context.Context) (*model1.Components, error) {
 	sources := make([]*model.Source, 0)
 	destinations := make([]*model.Destination, 0)
@@ -279,22 +251,18 @@ func (r *queryResolver) Components(ctx context.Context) (*model1.Components, err
 	}, nil
 }
 
-// Operator is the resolver for the operator field.
 func (r *relevantIfConditionResolver) Operator(ctx context.Context, obj *model.RelevantIfCondition) (model1.RelevantIfOperatorType, error) {
 	return model1.RelevantIfOperatorType(obj.Operator), nil
 }
 
-// Kind is the resolver for the kind field.
 func (r *sourceResolver) Kind(ctx context.Context, obj *model.Source) (string, error) {
 	return string(obj.GetKind()), nil
 }
 
-// Kind is the resolver for the kind field.
 func (r *sourceTypeResolver) Kind(ctx context.Context, obj *model.SourceType) (string, error) {
 	return string(obj.GetKind()), nil
 }
 
-// AgentChanges is the resolver for the agentChanges field.
 func (r *subscriptionResolver) AgentChanges(ctx context.Context, selector *string, query *string) (<-chan []*model1.AgentChange, error) {
 	parsedSelector, parsedQuery, err := r.parseSelectorAndQuery(selector, query)
 	if err != nil {
@@ -316,7 +284,6 @@ func (r *subscriptionResolver) AgentChanges(ctx context.Context, selector *strin
 	return channel, nil
 }
 
-// ConfigurationChanges is the resolver for the configurationChanges field.
 func (r *subscriptionResolver) ConfigurationChanges(ctx context.Context, selector *string, query *string) (<-chan []*model1.ConfigurationChange, error) {
 	parsedSelector, parsedQuery, err := r.parseSelectorAndQuery(selector, query)
 	if err != nil {
@@ -336,10 +303,25 @@ func (r *subscriptionResolver) ConfigurationChanges(ctx context.Context, selecto
 	return channel, nil
 }
 
-// Livetail is the resolver for the livetail field.
-func (r *subscriptionResolver) Livetail(ctx context.Context, agentIds []string, filters []string) (<-chan []*model1.LiveTailMessage, error) {
-	// TODO (observathon)
-	panic(fmt.Errorf("not implemented"))
+func (r *subscriptionResolver) Livetail(ctx context.Context, agentIDs []string, filters []string) (<-chan []*model1.LiveTailMessage, error) {
+	if r.bindplane.Relayer() == nil {
+		return nil, fmt.Errorf("LiveTail not enabled")
+	}
+
+	// TODO: add merge
+	channel, err := server.RelayLiveTailUntilDone(ctx, r.bindplane.Relayer(), agentIDs, filters, func(m *livetail.Message) []*model1.LiveTailMessage {
+		return []*model1.LiveTailMessage{
+			{
+				Type:    model1.LiveTailRecordType(m.PipelineType),
+				Records: m.Records,
+			},
+		}
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return channel, nil
 }
 
 // Agent returns generated.AgentResolver implementation.

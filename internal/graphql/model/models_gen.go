@@ -50,8 +50,8 @@ type DestinationWithType struct {
 }
 
 type LiveTailMessage struct {
-	Type    *LiveTailRecordType `json:"type"`
-	Records []interface{}       `json:"records"`
+	Type    LiveTailRecordType `json:"type"`
+	Records []interface{}      `json:"records"`
 }
 
 type AgentChangeType string
