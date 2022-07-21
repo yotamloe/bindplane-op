@@ -364,6 +364,14 @@ export type Suggestion = {
   query: Scalars['String'];
 };
 
+export type LivetailSubscriptionVariables = Exact<{
+  ids: Array<Scalars['String']> | Scalars['String'];
+  filters: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type LivetailSubscription = { __typename?: 'Subscription', livetail: Array<{ __typename?: 'LiveTailMessage', type?: LiveTailRecordType | null, records: Array<any> }> };
+
 export type AgentsTableQueryVariables = Exact<{
   selector?: InputMaybe<Scalars['String']>;
   query?: InputMaybe<Scalars['String']>;
@@ -471,6 +479,38 @@ export type GetConfigNamesQueryVariables = Exact<{ [key: string]: never; }>;
 export type GetConfigNamesQuery = { __typename?: 'Query', configurations: { __typename?: 'Configurations', configurations: Array<{ __typename?: 'Configuration', metadata: { __typename?: 'Metadata', name: string } }> } };
 
 
+export const LivetailDocument = gql`
+    subscription livetail($ids: [String!]!, $filters: [String!]!) {
+  livetail(agentIds: $ids, filters: $filters) {
+    type
+    records
+  }
+}
+    `;
+
+/**
+ * __useLivetailSubscription__
+ *
+ * To run a query within a React component, call `useLivetailSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useLivetailSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLivetailSubscription({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *      filters: // value for 'filters'
+ *   },
+ * });
+ */
+export function useLivetailSubscription(baseOptions: Apollo.SubscriptionHookOptions<LivetailSubscription, LivetailSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<LivetailSubscription, LivetailSubscriptionVariables>(LivetailDocument, options);
+      }
+export type LivetailSubscriptionHookResult = ReturnType<typeof useLivetailSubscription>;
+export type LivetailSubscriptionResult = Apollo.SubscriptionResult<LivetailSubscription>;
 export const AgentsTableDocument = gql`
     query AgentsTable($selector: String, $query: String) {
   agents(selector: $selector, query: $query) {

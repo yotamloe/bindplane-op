@@ -49,8 +49,22 @@
 
   border: 1px solid colors.$gray;
   border-radius: 4px;
+
+  overflow: auto;
 }
 
 .chip {
   font-family: typography.$font-family-monospace;
+}
+
+.dt {
+  flex: 0 0 180px;
+}
+
+.lg {
+  flex: 1 auto;
+  overflow-x: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
