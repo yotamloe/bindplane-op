@@ -165,6 +165,7 @@ func (r *relayer) Messages() eventbus.Source[*livetail.Message] {
 }
 
 func (r *relayer) AddSubscription(ctx context.Context, sessionID string, agentIDs []string, filters []string) {
+	r.logger.Info("AddSubscription", zap.String("sessionID", sessionID), zap.Strings("agentIDs", agentIDs), zap.Strings("filters", filters))
 	for _, agentID := range agentIDs {
 		c := r.subscriptions.upsertSubscription(agentID, func(config *livetail.Configuration) {
 			config.Endpoint = r.endpoint
@@ -178,6 +179,7 @@ func (r *relayer) AddSubscription(ctx context.Context, sessionID string, agentID
 }
 
 func (r *relayer) RemoveSubscription(ctx context.Context, sessionID string) {
+	r.logger.Info("RemoveSubscription", zap.String("sessionID", sessionID))
 	for agentID := range r.subscriptions.configurations {
 		hadSessionID := false
 		c := r.subscriptions.upsertSubscription(agentID, func(config *livetail.Configuration) {
