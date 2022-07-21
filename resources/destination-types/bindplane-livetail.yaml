@@ -1,0 +1,18 @@
+apiVersion: bindplane.observiq.com/v1beta
+kind: DestinationType
+metadata:
+  name: bindplane_livetail
+  displayName: BindPlane Live Tail
+  icon: /public/bindplane-logo.png
+spec:
+  parameters:
+    - name: endpoint
+      label: Endpoint
+      description: LiveTail websocket endpoint
+      type: string
+      default: ws://localhost:3001/v1/livetail
+
+  logs+metrics+traces:
+    exporters: |
+      - bindplane:
+          endpoint: {{ .endpoint }}
