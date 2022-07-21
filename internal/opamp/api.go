@@ -333,6 +333,7 @@ func (s *opampServer) ConfigureLiveTail(ctx context.Context, agentID string, con
 		if err != nil {
 			return err
 		}
+		s.logger.Info("ConfigureLiveTail", zap.String("livetail.yaml", string(livetail)))
 		return s.send(context.Background(), conn, &protobufs.ServerToAgent{
 			RemoteConfig: &protobufs.AgentRemoteConfig{
 				Config: &protobufs.AgentConfigMap{
