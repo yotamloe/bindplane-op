@@ -312,6 +312,7 @@ func (r *subscriptionResolver) Livetail(ctx context.Context, agentIDs []string, 
 
 	// TODO: add merge
 	channel, err := server.RelayLiveTailUntilDone(ctx, r.bindplane.Relayer(), agentIDs, filters, func(m *livetail.Message) []*model1.LiveTailMessage {
+		r.bindplane.Logger().Info("Sending LiveTailMessage to browser", zap.Any("msg", m))
 		return []*model1.LiveTailMessage{
 			{
 				Type:    model1.LiveTailRecordType(m.PipelineType),
