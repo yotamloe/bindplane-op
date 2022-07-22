@@ -6,56 +6,25 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import {
+  LiveTailRecordType,
   LivetailSubscription,
   useLivetailSubscription,
 } from "../../graphql/generated";
 import { ChevronDown } from "../Icons";
 import styles from "./live-tail-console.module.scss";
 import { LTSearchBar } from "./SearchBar";
+import { LogRecord, MetricRecord } from "./types";
 
 interface Props {
   ids: string[];
 }
 
-type Record = LivetailSubscription["livetail"][0]["records"][0];
-
-const ROWS: Record[] = [
-  {
-    timestamp: Date.now().toString(),
-    a: "b",
-    foo: "bar",
-    blah: "foo",
-  },
-  {
-    timestamp: Date.now().toString(),
-    a: "b",
-    foo: "bar",
-    blah: "foo",
-  },
-  {
-    timestamp: Date.now().toString(),
-    a: "b",
-    foo: "bar",
-    blah: "foo",
-  },
-  {
-    timestamp: Date.now().toString(),
-    a: "b",
-    foo: "bar",
-    blah: "foo",
-  },
-  {
-    timestamp: Date.now().toString(),
-    a: "b",
-    foo: "bar",
-    blah: "foo",
-  },
-];
+type Message = LivetailSubscription["livetail"][0];
 
 gql`
   subscription livetail($ids: [String!]!, $filters: [String!]!) {
@@ -68,7 +37,7 @@ gql`
 
 export const LiveTailConsole: React.FC<Props> = ({ ids }) => {
   const [filters, setFilters] = useState<string[]>([]);
-  const [rows, setRows] = useState<Record[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const consoleRef = useRef<HTMLDivElement | null>(null);
   const lastRowRef = useRef<HTMLDivElement | null>(null);
@@ -81,22 +50,17 @@ export const LiveTailConsole: React.FC<Props> = ({ ids }) => {
       const { data } = subscriptionData;
       if (data == null) return;
 
-      let records: Record[] = [];
-      for (const message of data.livetail) {
-        records = records.concat(...message.records);
-      }
-      setRows((prev) => [...prev, ...records]);
+      console.log({ data });
+
+      setMessages((prev) => [...prev, ...data.livetail]);
     },
   });
-  if (error != null) {
-    console.error(error);
-  }
 
   useEffect(() => {
     if (consoleRef.current) {
       consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
     }
-  }, [rows]);
+  }, [messages]);
 
   function handleFilterChange(v: string[]) {
     setFilters(v);
@@ -110,8 +74,8 @@ export const LiveTailConsole: React.FC<Props> = ({ ids }) => {
           <div className={styles.dt}>Time</div>
           <div className={styles.lg}>Message</div>
         </div>
-        {rows.map((row) => (
-          <LiveTailRow record={row} />
+        {messages.map((row) => (
+          <LiveTailRow message={row} />
         ))}
       </div>
       <div ref={lastRowRef} />
@@ -121,9 +85,27 @@ export const LiveTailConsole: React.FC<Props> = ({ ids }) => {
   );
 };
 
-const LiveTailRow: React.FC<{ record: Record }> = ({ record }) => {
-  const { timestamp, ...rest } = record;
+const LiveTailRow: React.FC<{ message: Message }> = ({ message }) => {
+  const { timestamp, ...rest } = message.records[0];
   const [open, setOpen] = useState(false);
+
+  function renderSummary(message: Message) {
+    switch (message.type) {
+      case LiveTailRecordType.Log:
+        const logRecord = message.records[0] as LogRecord;
+        return (
+          <Typography fontFamily="monospace">{logRecord.severity}</Typography>
+        );
+      case LiveTailRecordType.Metric:
+        const metricRecord = message.records[0] as MetricRecord;
+        return (
+          <Typography fontFamily="monospace">
+            {metricRecord.value} {metricRecord.unit}
+          </Typography>
+        );
+      case LiveTailRecordType.Trace:
+    }
+  }
 
   return (
     <Card
@@ -134,8 +116,8 @@ const LiveTailRow: React.FC<{ record: Record }> = ({ record }) => {
         <div className={styles.ch}>
           <ChevronDown className={styles.chevron} />
         </div>
-        <div className={styles.dt}>{record.timestamp}</div>
-        <div className={styles.lg}>{record.body}</div>
+        <div className={styles.dt}>{message.records[0].timestamp}</div>
+        {renderSummary(message)}
       </Stack>
       <Collapse in={open}>
         <div className={styles["table-container"]}>
@@ -144,7 +126,7 @@ const LiveTailRow: React.FC<{ record: Record }> = ({ record }) => {
               {Object.entries(rest).map(([k, v]) => (
                 <TableRow>
                   <TableCell className={styles.key}>{k}</TableCell>
-                  <TableCell className={styles.value}>{v as any}</TableCell>
+                  <TableCell className={styles.value}>{String(v)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
