@@ -143,20 +143,20 @@ func (e EventType) MarshalGQL(w io.Writer) {
 type LiveTailRecordType string
 
 const (
-	LiveTailRecordTypeLog    LiveTailRecordType = "log"
-	LiveTailRecordTypeMetric LiveTailRecordType = "metric"
-	LiveTailRecordTypeTrace  LiveTailRecordType = "trace"
+	LiveTailRecordTypeLogs    LiveTailRecordType = "logs"
+	LiveTailRecordTypeMetrics LiveTailRecordType = "metrics"
+	LiveTailRecordTypeTraces  LiveTailRecordType = "traces"
 )
 
 var AllLiveTailRecordType = []LiveTailRecordType{
-	LiveTailRecordTypeLog,
-	LiveTailRecordTypeMetric,
-	LiveTailRecordTypeTrace,
+	LiveTailRecordTypeLogs,
+	LiveTailRecordTypeMetrics,
+	LiveTailRecordTypeTraces,
 }
 
 func (e LiveTailRecordType) IsValid() bool {
 	switch e {
-	case LiveTailRecordTypeLog, LiveTailRecordTypeMetric, LiveTailRecordTypeTrace:
+	case LiveTailRecordTypeLogs, LiveTailRecordTypeMetrics, LiveTailRecordTypeTraces:
 		return true
 	}
 	return false

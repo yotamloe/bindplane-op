@@ -1605,9 +1605,9 @@ type Components {
 }
 
 enum LiveTailRecordType {
-  log
-  metric
-  trace
+  logs
+  metrics
+  traces
 }
 
 type LiveTailMessage {

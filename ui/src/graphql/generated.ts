@@ -142,9 +142,9 @@ export type LiveTailMessage = {
 };
 
 export enum LiveTailRecordType {
-  Log = 'log',
-  Metric = 'metric',
-  Trace = 'trace'
+  Logs = 'logs',
+  Metrics = 'metrics',
+  Traces = 'traces'
 }
 
 export type Metadata = {

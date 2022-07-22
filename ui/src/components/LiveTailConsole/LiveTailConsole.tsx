@@ -1,6 +1,7 @@
 import { gql, OnSubscriptionDataOptions } from "@apollo/client";
 import {
   Card,
+  Chip,
   Collapse,
   Stack,
   Table,
@@ -9,7 +10,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import {
   LiveTailRecordType,
   LivetailSubscription,
@@ -52,7 +53,10 @@ export const LiveTailConsole: React.FC<Props> = ({ ids }) => {
 
       console.log({ data });
 
-      setMessages((prev) => [...prev, ...data.livetail]);
+      const newMessages = [...messages, ...data.livetail];
+      const last100 = newMessages.slice(newMessages.length - 100);
+
+      setMessages(last100);
     },
   });
 
@@ -85,30 +89,35 @@ export const LiveTailConsole: React.FC<Props> = ({ ids }) => {
   );
 };
 
-const LiveTailRow: React.FC<{ message: Message }> = ({ message }) => {
+const LiveTailRowComponent: React.FC<{ message: Message }> = ({ message }) => {
   const { timestamp, ...rest } = message.records[0];
   const [open, setOpen] = useState(false);
 
   function renderSummary(message: Message) {
     switch (message.type) {
-      case LiveTailRecordType.Log:
+      case LiveTailRecordType.Logs:
         const logRecord = message.records[0] as LogRecord;
         return (
           <Typography fontFamily="monospace">{logRecord.severity}</Typography>
         );
-      case LiveTailRecordType.Metric:
+      case LiveTailRecordType.Metrics:
         const metricRecord = message.records[0] as MetricRecord;
         return (
-          <Typography fontFamily="monospace">
-            {metricRecord.value} {metricRecord.unit}
-          </Typography>
+          <Stack direction="row" spacing={1}>
+            <Chip label={metricRecord.name} size={"small"} />
+            <Typography fontFamily="monospace">
+              {metricRecord.value} {metricRecord.unit}
+            </Typography>
+          </Stack>
         );
-      case LiveTailRecordType.Trace:
+      case LiveTailRecordType.Traces:
+        return <>trace todo</>;
     }
   }
 
   return (
     <Card
+      key={`${timestamp}-${message.type}`}
       onClick={() => setOpen((prev) => !prev)}
       classes={{ root: styles.card }}
     >
@@ -116,8 +125,11 @@ const LiveTailRow: React.FC<{ message: Message }> = ({ message }) => {
         <div className={styles.ch}>
           <ChevronDown className={styles.chevron} />
         </div>
-        <div className={styles.dt}>{formatLogDate(new Date(message.records[0].timestamp))}</div>
-        {renderSummary(message)}
+        <div className={styles.dt}>
+          {formatLogDate(new Date(message.records[0].timestamp))}
+        </div>
+
+        <div className={styles.summary}>{renderSummary(message)}</div>
       </Stack>
       <Collapse in={open}>
         <div className={styles["table-container"]}>
@@ -126,7 +138,9 @@ const LiveTailRow: React.FC<{ message: Message }> = ({ message }) => {
               {Object.entries(rest).map(([k, v]) => (
                 <TableRow>
                   <TableCell className={styles.key}>{k}</TableCell>
-                  <TableCell className={styles.value}><pre>{JSON.stringify(v, undefined, 4)}</pre></TableCell>
+                  <TableCell className={styles.value}>
+                    <pre>{JSON.stringify(v, undefined, 4)}</pre>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -138,15 +152,16 @@ const LiveTailRow: React.FC<{ message: Message }> = ({ message }) => {
 };
 
 const logDateFormat = new Intl.DateTimeFormat(undefined, {
-  month: 'short',
-  day: '2-digit',
+  month: "short",
+  day: "2-digit",
   year: undefined,
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  timeZoneName: 'short',
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  timeZoneName: "short",
 });
 
 export function formatLogDate(date: Date): string {
   return logDateFormat.format(date);
 }
+const LiveTailRow = memo(LiveTailRowComponent);
