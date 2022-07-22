@@ -116,7 +116,7 @@ const LiveTailRow: React.FC<{ message: Message }> = ({ message }) => {
         <div className={styles.ch}>
           <ChevronDown className={styles.chevron} />
         </div>
-        <div className={styles.dt}>{message.records[0].timestamp}</div>
+        <div className={styles.dt}>{formatLogDate(new Date(message.records[0].timestamp))}</div>
         {renderSummary(message)}
       </Stack>
       <Collapse in={open}>
@@ -136,3 +136,17 @@ const LiveTailRow: React.FC<{ message: Message }> = ({ message }) => {
     </Card>
   );
 };
+
+const logDateFormat = new Intl.DateTimeFormat(undefined, {
+  month: 'short',
+  day: '2-digit',
+  year: undefined,
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'short',
+});
+
+export function formatLogDate(date: Date): string {
+  return logDateFormat.format(date);
+}
