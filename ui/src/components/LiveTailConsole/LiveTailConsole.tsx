@@ -126,7 +126,7 @@ const LiveTailRow: React.FC<{ message: Message }> = ({ message }) => {
               {Object.entries(rest).map(([k, v]) => (
                 <TableRow>
                   <TableCell className={styles.key}>{k}</TableCell>
-                  <TableCell className={styles.value}>{String(v)}</TableCell>
+                  <TableCell className={styles.value}><pre>{JSON.stringify(v, undefined, 4)}</pre></TableCell>
                 </TableRow>
               ))}
             </TableBody>
