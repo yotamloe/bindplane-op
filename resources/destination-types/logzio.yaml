@@ -92,7 +92,7 @@ spec:
 
   metrics:
     exporters: |
-      {{ if eq .enable_metrics }}
+      {{ if .enable_metrics }}
       - prometheusremotewrite:
         endpoint: {{ .listener_url }}
         timeout: {{ .timeout }}s
@@ -101,7 +101,7 @@ spec:
       {{ end }}
   traces:
     exporters: |
-      {{ if eq .enable_tracing }}
+      {{ if .enable_tracing }}
       - logzio/traces:
         region: {{ .region }}
         account_token: {{ .tracing_token }}
@@ -112,7 +112,7 @@ spec:
 
   logs:
     exporters: |
-      {{ if eq .enable_logs }}
+      {{ if .enable_logs }}
       - logzio/logs:
           region: {{ .region }}
           account_token: {{ .logs_token }}
