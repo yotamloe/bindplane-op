@@ -102,7 +102,7 @@ spec:
   traces:
     exporters: |
       {{ if .enable_tracing }}
-      - logzio:
+      - logzio/tracing:
           region: "{{ .region }}"
           account_token: "{{ .tracing_token }}"
           timeout: "{{ .timeout }}s"
@@ -113,7 +113,7 @@ spec:
   logs:
     exporters: |
       {{ if .enable_logs }}
-      - logzio:
+      - logzio/logs:
           region: "{{ .region }}"
           account_token: "{{ .logs_token }}"
           timeout: "{{ .timeout }}s"
