@@ -94,18 +94,18 @@ spec:
     exporters: |
       {{ if .enable_metrics }}
       - prometheusremotewrite:
-        endpoint: {{ .listener_url }}
-        timeout: {{ .timeout }}s
-        headers:
-          Authorization: Bearer {{ .metrics_token }}
+          endpoint: "{{ .listener_url }}"
+          timeout: "{{ .timeout }}s"
+          headers:
+            Authorization: "Bearer {{ .metrics_token }}"
       {{ end }}
   traces:
     exporters: |
       {{ if .enable_tracing }}
-      - logzio/traces:
-        region: {{ .region }}
-        account_token: {{ .tracing_token }}
-        timeout: {{ .timeout }}s
+      - logzio:
+          region: "{{ .region }}"
+          account_token: "{{ .tracing_token }}"
+          timeout: "{{ .timeout }}s"
       {{ end }}
     processors: |
       - batch:
@@ -113,10 +113,10 @@ spec:
   logs:
     exporters: |
       {{ if .enable_logs }}
-      - logzio/logs:
-          region: {{ .region }}
-          account_token: {{ .logs_token }}
-          timeout: {{ .timeout }}s
+      - logzio:
+          region: "{{ .region }}"
+          account_token: "{{ .logs_token }}"
+          timeout: "{{ .timeout }}s"
       {{ end }}
     processors: |
       - batch:
