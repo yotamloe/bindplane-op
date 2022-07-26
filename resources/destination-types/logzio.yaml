@@ -37,7 +37,7 @@ spec:
 
     - name: tracing_token
       label: Tracing_token
-      description: Your logz.io account token for your tracing account account
+      description: Your logz.io account token for your tracing account
       type: string
       default: ""
       required: true
@@ -48,7 +48,7 @@ spec:
 
     - name: metrics_token
       label: Metrics_token
-      description: Your logz.io account token for your metrics account account
+      description: Your logz.io account token for your metrics account
       type: string
       default: ""
       required: true
