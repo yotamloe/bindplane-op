@@ -12,20 +12,8 @@ spec:
       type: bool
       default: true
 
-    - name: enable_metrics
-      label: Enable Metrics
-      description: Enable to send metrics to Logz.io.
-      type: bool
-      default: true
-
-    - name: enable_tracing
-      label: Enable Tracing
-      description: Enable to send spans to Logz.io.
-      type: bool
-      default: true
-
     - name: logs_token
-      label: Logs_token
+      label: Logs Token
       description: Your logz.io account token for your logs account
       type: string
       default: ""
@@ -35,19 +23,14 @@ spec:
           operator: equals
           value: true
 
-    - name: tracing_token
-      label: Tracing_token
-      description: Your logz.io account token for your tracing account
-      type: string
-      default: ""
-      required: true
-      relevantIf:
-        - name: enable_tracing
-          operator: equals
-          value: true
+    - name: enable_metrics
+      label: Enable Metrics
+      description: Enable to send metrics to Logz.io.
+      type: bool
+      default: true
 
     - name: metrics_token
-      label: Metrics_token
+      label: Metrics Token
       description: Your logz.io account token for your metrics account
       type: string
       default: ""
@@ -65,6 +48,23 @@ spec:
       required: true
       relevantIf:
         - name: enable_metrics
+          operator: equals
+          value: true
+
+    - name: enable_tracing
+      label: Enable Tracing
+      description: Enable to send spans to Logz.io.
+      type: bool
+      default: true
+
+    - name: tracing_token
+      label: Tracing Token
+      description: Your logz.io account token for your tracing account
+      type: string
+      default: ""
+      required: true
+      relevantIf:
+        - name: enable_tracing
           operator: equals
           value: true
 
